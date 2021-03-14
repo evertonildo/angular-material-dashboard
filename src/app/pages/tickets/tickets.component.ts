@@ -61,17 +61,30 @@ export class TicketsComponent implements OnInit {
   }
   createFormGroup() {
     this.formGroup = this._fb.group({
-      TargetPhone: new FormControl(this.registro.TargetPhone, [Validators.required]),
-      SourcePhone: new FormControl(this.registro.SourcePhone, [Validators.required]),
       LicenciadaId: new FormControl(this.registro.LicenciadaId, [Validators.required]),
-      ClienteId: new FormControl(this.registro.ClienteId, [Validators.required]),
-      Requester: new FormControl(this.registro.Requester, [Validators.required]),
-      ExportarDados: new FormControl(this.registro.ExportarDados),
-      RequesterPhone: new FormControl(this.registro.RequesterPhone, [Validators.required]),
-      ContractId: new FormControl(this.registro.ContractId),
-      AvaliableServices: new FormControl(this.registro.AvaliableServices),
-      Observations: new FormControl(this.registro.Observations),
-      AssuntoId: new FormControl(this.registro.AssuntoId, [Validators.required])
+      Funcionalidade: new FormControl(this.registro.Funcionalidade),
+      Descricao: new FormControl(this.registro.Descricao, [Validators.required]),
+      Status: new FormControl(this.registro.Status, [Validators.required]),
+      Email: new FormControl(this.registro.Email, [Validators.required]),
+      EmailCopia: new FormControl(this.registro.EmailCopia),
+      FoneRetorno: new FormControl(this.registro.FoneRetorno, [Validators.required]),
+      NomeContato: new FormControl(this.registro.NomeContato  ),
+      PassoAPasso: new FormControl(this.registro.PassoAPasso),
+      DataOcorrencia: new FormControl(this.registro.DataOcorrencia),
+      DataLimite: new FormControl(this.registro.DataLimite),
+      HoraOcorrencia: new FormControl(this.registro.HoraOcorrencia),
+      WhatsApp: new FormControl(this.registro.WhatsApp),
+      HangOut: new FormControl(this.registro.HangOut),
+      Skype: new FormControl(this.registro.Skype),
+      PaginaId: new FormControl(this.registro.PaginaId),
+      PrioridadeId: new FormControl(this.registro.PrioridadeId),
+      QtdHoras: new FormControl(this.registro.QtdHoras),
+      ValorEstimado: new FormControl(this.registro.ValorEstimado),
+      PerfilDestinatariosId: new FormControl(this.registro.PerfilDestinatariosId),
+      SistemaId: new FormControl(this.registro.SistemaId),
+      SolicitanteId: new FormControl(this.registro.SolicitanteId),
+      UsuarioDestinatarioId: new FormControl(this.registro.UsuarioDestinatarioId),
+      TipoSolicitacaoId: new FormControl(this.registro.TipoSolicitacaoId)
     });
   }
 
@@ -82,64 +95,7 @@ export class TicketsComponent implements OnInit {
 
   ngOnInit(): void {
     this.inicializacao();
-    if (this.route.snapshot.params.id !== undefined) {
-      this.numeroChamado = this.route.snapshot.params.id.split('.')[0];
-      this.numeroChamador = this.route.snapshot.params.id.split('.')[1];
-
-
-
-      this.services.buscaEndpoint(this.numeroChamado).subscribe(r => {
-        this.licenciada = r.registro;
-        console.log('buscaEndpoint', this.licenciada);
-
-        let dadosBusca = {
-          CNPJ: this.licenciada.CNPJ,
-          UrlRoot: this.licenciada.UrlRoot,
-          EndPoint: this.licenciada.EndPoint,
-          numeroChamador: this.numeroChamador
-        };
-
-        ///  http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com/callcenter
-        this.services.buscaClienteChamadorNaLicenciada(dadosBusca).subscribe(r => {
-          console.log('buscaClienteChamadorNaLicenciada 2', r);
-          //if (r.registro === undefined) {
-          //  this.clienteChamador = { Id: 1, Nome: 'Não Identificado', ComoEhConhecido:'Não Identificado' }
-          //} else
-          this.clienteChamador = r.registro;
-          console.log('clienteChamador', this.clienteChamador);
-          if (this.clienteChamador === undefined) {
-            this.clienteChamador = { Id: 1, Nome: 'Não Identificado', ComoEhConhecido: 'Não Identificado' };
-            this.registerCustomerService(1, this.licenciada.LicenciadaId, this.numeroChamador, this.numeroChamado);
-          } else {
-            dadosBusca = {
-              CNPJ: environment.cnpjCentral,
-              UrlRoot: this.licenciada.UrlRoot,
-              EndPoint: this.licenciada.EndPoint,
-              numeroChamador: this.numeroChamador
-            };
-
-            this.services.verificaSeClienteCadastradoNaCentral(dadosBusca).subscribe(clienteCentral => {
-              console.log('clienteCentral', clienteCentral);
-
-              if (clienteCentral.registro === undefined && this.clienteChamador !== undefined) {
-
-                this.services.postCadastraClienteNaCentral(this.clienteChamador).subscribe(r => {
-                  console.log('postCadastraClienteNaCentral', r);
-                  if (r.registro !== undefined) {
-                    this.callCLiente = r.registro;
-                    this.registerCustomerService(this.callCLiente.pk_sacado, this.licenciada.LicenciadaId, this.numeroChamador, this.numeroChamado);
-                  }
-
-                }, erro => console.log(erro));
-              } else {
-                // clienteCentral.registro = this.clienteChamador;
-                this.registerCustomerService(1, this.licenciada.LicenciadaId, this.numeroChamador, this.numeroChamado);
-              }
-            }, erro => console.log(erro));
-          }
-        }, erro => console.log(erro));
-      }, erro => console.log(erro));
-    }
+    
   }
   inicializacao() {
     this.services.httpGet('getlistcombo/AssuntoChamada')
@@ -161,40 +117,6 @@ export class TicketsComponent implements OnInit {
         this.registros = r.lista;
         this.dataSource = new MatTableDataSource(this.registros);
         this.dataSource.paginator = this.paginator;
-      }, erro => console.log(erro));
-  }
-
-  /**
-   * 
-   * @param clienteId Id do cliente
-   * @param licenciadaId Id da Licenciada
-   * @param numeroChamador Número do cliente
-   * @param numeroChamado Número chamado da licenciada 
-   */
-  registerCustomerService(clienteId: any, licenciadaId: any, numeroChamador: any, numeroChamado: any) {
-    this.registro.ClienteId = clienteId;
-    this.registro.LicenciadaId = licenciadaId;
-    this.registro.SourcePhone = numeroChamador;
-    this.registro.TargetPhone = numeroChamado;
-    let capsula = {
-      metodo: ' new-customer-service',
-      registro: this.registro
-    };
-
-    console.log('capsula', capsula);
-
-    this.services.httpPost('customer-service', capsula)
-      .subscribe(r => {
-        console.log('retorno new customer-service', r);
-        this.services.buscaCustomerService(r.registro.pk_customer_service)
-          .subscribe(r => {
-            this.registro = r.registro;
-            console.log('registro', this.registro);
-            this.createFormGroup();
-            this.listar(this.numeroChamado);
-          }, erro => console.log(erro));
-
-        console.log('retorno new', r, this.registro);
       }, erro => console.log(erro));
   }
 

@@ -6,6 +6,7 @@ import { PostsComponent } from './modules/posts/posts.component';
 import { AssuntosComponent } from './pages/assuntos/assuntos.component';
 import { ChamadosComponent } from './pages/chamados/chamados.component';
 import { EndpointsComponent } from './pages/endpoints/endpoints.component';
+import { TicketsComponent } from './pages/tickets/tickets.component';
 
 const routes: Routes = [{
   path: '',
@@ -15,6 +16,7 @@ const routes: Routes = [{
   { path: 'chamadas', component: ChamadosComponent },
   { path: 'chamadas/:id', component: ChamadosComponent },
   { path: 'assuntos', component: AssuntosComponent },
+  { path: 'tickets', component: TicketsComponent },
   { path: 'endpoints', component: EndpointsComponent }]
 }];
 
