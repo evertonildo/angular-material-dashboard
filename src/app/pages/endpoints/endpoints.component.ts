@@ -14,8 +14,8 @@ import { ExternalService } from 'src/app/shared/services/external.service';
 })
 export class EndpointsComponent implements OnInit {
 
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: false }) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
 
   licenciadas: any[];
   formGroup: FormGroup;

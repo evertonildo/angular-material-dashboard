@@ -26,7 +26,7 @@ export class ChamadosComponent implements OnInit {
   contratos: any[];
   assuntos: any[];
 
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   displayedColumns = [
     "Id",
