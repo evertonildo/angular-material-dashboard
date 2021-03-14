@@ -16,27 +16,12 @@ import { environment } from 'src/environments/environment';
 export class TicketsComponent implements OnInit {
   registro: Ticket;
   formGroup: FormGroup;
-  targetPhone: string;
-  sourcePhone: string;
-  callCLiente: any;
-  licenciada: any;
-  clienteChamador: any;
-  numeroChamador: any;
-  numeroChamado: any;
-  contratos: any[];
-  assuntos: any[];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   displayedColumns = [
     "Id",
     "Data",
-    "Licenciada",
-    // "TargetPhone",
-    "Cliente",
-    // "SourcePhone",
-    "Requester",
-    "Assunto",
     "Usuario",
     "acao",
   ];
@@ -51,11 +36,6 @@ export class TicketsComponent implements OnInit {
     private route: ActivatedRoute,
     private _fb: FormBuilder) {
     document.title = 'Chamados - CCS';
-    this.contratos = [];
-    if (this.route.snapshot.params.id !== undefined) {
-      this.targetPhone = this.route.snapshot.params.id.split('.')[0];
-      this.sourcePhone = this.route.snapshot.params.id.split('.')[1];
-    }
     this.registro = new Ticket(0);
     this.createFormGroup();
   }
@@ -98,16 +78,6 @@ export class TicketsComponent implements OnInit {
     
   }
   inicializacao() {
-    this.services.httpGet('getlistcombo/AssuntoChamada')
-      .subscribe(r => {
-        this.assuntos = r;
-      }, erro => console.log(erro));
-
-    this.services.httpGet('callednumbers')
-      .subscribe(r => {
-        this.calledPhones = r.lista;
-      }, erro => console.log(erro));
-
   }
 
   applyFilter(event: any){
