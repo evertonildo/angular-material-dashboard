@@ -1,0 +1,141 @@
+<div class="example-container" flexLayout [formGroup]="formGroup">
+  <div class="example-container" *ngIf="registro?.Id > 0">
+    <fieldset>
+      <legend>
+        Dados da Chamada #{{registro?.Id }}
+      </legend>
+      <div class="container">
+        <div fxFlex>
+          <label>Número Discado</label>
+          <p>{{targetPhone}}</p>
+        </div>
+        <div fxFlex>
+          <label>Empresa</label>
+          <p>{{licenciada?.RazaoSocial}}</p>
+        </div>
+        <div fxFlex>
+          <label>CNPJ</label>
+          <p>{{licenciada?.CNPJ | cnpj}}</p>
+        </div>
+      </div>
+      <div class="container">
+        <div fxFlex>
+          <label>Número Discador</label>
+          <p>{{numeroChamador}}</p>
+        </div>
+        <div fxFlex>
+          <label>Nome do Cliente (Chamador)</label>
+          <p>{{clienteChamador?.ComoEhConhecido}}</p>
+        </div>
+        <div fxFlex>
+          <label>CNPJ do Cliente</label>
+          <p>{{clienteChamador?.CPF_CNPJ}}</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <div flexLayout class="container">
+      <mat-form-field fxFlex>
+        <input matInput formControlName="Requester" placeholder="Solicitante">
+      </mat-form-field>
+      <div fxFlex="1"></div>
+      <mat-form-field fxFlex>
+        <input matInput formControlName="RequesterPhone" placeholder="Solicitante Fone">
+      </mat-form-field>
+      <div fxFlex="1"></div>
+      <mat-form-field fxFlex>
+        <mat-select placeholder="Contrato" formControlName="ContractId">
+          <mat-option *ngFor="let item of contratos" [value]="item.Id">{{item.Texto}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="container">
+      <mat-form-field fxFlex>
+        <textarea matInput placeholder="Observações" formControlName="Observations"></textarea>
+      </mat-form-field>
+      <div fxFlex="1"></div>
+      <mat-form-field fxFlex="15">
+        <mat-select placeholder="Assunto" formControlName="AssuntoId">
+          <mat-option *ngFor="let item of assuntos" [value]="item.Id">{{item.Texto}}</mat-option>
+        </mat-select>
+        <div fxFlex="1"></div>
+      </mat-form-field>
+      <div fxFlex="10" class="center">
+        <button class="success" (click)="salvar(formGroup.value)">Salvar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="example-container">
+  <div class="container top10" flexLayout>
+    <mat-form-field fxFlex>
+      <input matInput #txtBusca (keyup)="applyFilter($event.target.value)" #txtBusca style="width: 90%"
+        placeholder="Procurar por">
+      <button mat-button *ngIf="txtBusca.value" matSuffix mat-icon-button aria-label="Clear"
+        (click)="txtBusca.value=''">
+        <mat-icon>close</mat-icon>
+      </button>
+
+    </mat-form-field>
+
+    <mat-form-field fxFlex>
+      <mat-select placeholder="Licenciadas com Chamados" (selectionChange)="selectedPhoneNumber($event.value)">
+        <mat-option *ngFor="let item of calledPhones" [value]="item.Id">{{item.Texto}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-paginator fxFlex style="right: 0px; top: 10; position: absolute" #paginator [pageSize]="100"
+      showFirstLastButtons [pageSizeOptions]="[5, 10, 20, 100]">
+    </mat-paginator>
+  </div>
+  <table mat-table #table [dataSource]="dataSource" matSort class="mat-elevation-z8 top10">
+    <ng-container matColumnDef="Id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+      <td mat-cell *matCellDef="let element"> {{element.Id}} </td>
+    </ng-container>
+    <ng-container matColumnDef="Data">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Registro </th>
+      <td mat-cell *matCellDef="let element"> {{element.DataRegistro | date:'dd/MM/yyyy HH:mm:ss'}} </td>
+    </ng-container>
+    <ng-container matColumnDef="Licenciada">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Licenciada </th>
+      <td mat-cell *matCellDef="let element"> {{element.Licenciada}}<br />{{element.TargetPhone | phone}}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="Cliente">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Cliente </th>
+      <td mat-cell *matCellDef="let element"> {{element.Cliente}}<br /> {{element.SourcePhone}}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="Requester">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Solicitante </th>
+      <td mat-cell *matCellDef="let element"> {{element.Requester}}<br /> {{element.RequesterPhone}}</td>
+    </ng-container>
+    <ng-container matColumnDef="Assunto">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Assunto </th>
+      <td mat-cell *matCellDef="let element"> {{element.Assunto}}</td>
+    </ng-container>
+    <ng-container matColumnDef="Usuario">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Atendido por </th>
+      <td mat-cell *matCellDef="let element"> {{element.Usuario}}</td>
+    </ng-container>
+    <ng-container matColumnDef="acao">
+      <th mat-header-cell *matHeaderCellDef> Ação </th>
+      <td mat-cell *matCellDef="let element">
+        <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="editar(element)">edit</mat-icon>
+        <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="apagar(element)">delete</mat-icon>
+      </td>
+
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
+
+<!--
+
+  <audio kjb-settings-id="color_audio_chrome" preload="auto" src="https://kajabi-storefronts-production.s3.amazonaws.com/posts/14283054/downloads/1VIes8i2RZm0RRZkInEm__02_G-Force_-_Present_Continuous_-_Audio_aula.mp3?response-content-disposition=attachment%3B%20filename%3D_02_G-Force_-_Present_Continuous_-_Audio_aula.mp3&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAI4TIKYMSB4PQMFBA%2F20210310%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date=20210310T225512Z&amp;X-Amz-Expires=604800&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=fb7861ec232f11cccd4c74e1274283311d517bea05a7a6da635d7d3f91f7b2c7"></audio>
+-->

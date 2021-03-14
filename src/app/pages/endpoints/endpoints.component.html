@@ -1,0 +1,121 @@
+<div class="example-container ">
+    <mat-accordion>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    Cadastrar Endpoint
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="container" fxLayout [formGroup]="formGroup">
+                <div class="container">
+                    <mat-form-field fxFlex>
+                        <!--mat-label>Licenciada</mat-label-->
+                        <mat-select (selectionChange)="selectLicenciada()" placeholder="Licenciadas"
+                            formControlName="LicenciadaId">
+                            <mat-option *ngFor="let item of licenciadas" [value]="item.id">
+                                {{item.RazaoSocial}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <div fxFlex="1"></div>
+                    <mat-form-field fxFlex>
+                        <input matInput formControlName="CNPJ" placeholder="CNPJ">
+                    </mat-form-field>
+                    <div fxFlex="1"></div>
+                    <mat-form-field fxFlex>
+                        <input matInput formControlName="NumeroFone" placeholder="Número de acesso">
+                    </mat-form-field>
+
+                </div>
+                <hr>
+                <div class="container">
+                    <mat-form-field fxFlex>
+                        <input matInput formControlName="Servico" placeholder="Nome do serviço">
+                    </mat-form-field>
+                    <div fxFlex="1"></div>
+                    <!--input matInput formControlName="Ativo"  placeholder="Número de acesso"-->
+                    <div fxFlex="7%">
+                        <mat-checkbox formControlName="Ativo">Ativo</mat-checkbox>
+                    </div>
+                    <div fxFlex="1"></div>
+                    <mat-form-field fxFlex>
+                        <input matInput placeholder="Url Root" formControlName="UrlRoot" />
+                    </mat-form-field>
+                    <div fxFlex="1"></div>
+                    <mat-form-field fxFlex>
+                        <input matInput placeholder="Endpoint" formControlName="EndPoint" />
+                    </mat-form-field>
+                </div>
+            </div>
+            <div fxFlexLayout="row-reverse">
+                <button mat-raised-button color="danger">Excluir</button>
+                <button mat-raised-button (click)="salvar(formGroup.value)" [disabled]="!formGroup.valid"
+                    color="primary">Gravar</button>
+
+                <!--a mat-raised-button routerLink=".">Link</a-->
+            </div>
+
+        </mat-expansion-panel>
+    </mat-accordion>
+    <div class="container top10">
+        <mat-form-field fxFlex>
+            <input matInput #txtBusca (keyup)="applyFilter($event.target.value)" #txtBusca style="width: 90%"
+                placeholder="Procurar por">
+            <button mat-button *ngIf="txtBusca.value" matSuffix mat-icon-button aria-label="Clear"
+                (click)="txtBusca.value=''">
+                <mat-icon>close</mat-icon>
+            </button>
+            <mat-icon (click)="novo()" matSuffix class="pointer" style="right: -100%;">add_circle</mat-icon>
+        </mat-form-field>
+        <mat-paginator style="right: 0px; top: 10; position: absolute" #paginator [pageSize]="100" showFirstLastButtons
+            [pageSizeOptions]="[5, 10, 20, 100]">
+        </mat-paginator>
+    </div>
+    <table mat-table #table [dataSource]="dataSource" matSort class="mat-elevation-z8 top10">
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+            <td mat-cell *matCellDef="let element"> {{element.Id}} </td>
+        </ng-container>
+        <ng-container matColumnDef="licenciada">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Licenciada </th>
+            <td mat-cell *matCellDef="let element"> {{element.RazaoSocial}} </td>
+        </ng-container>
+        <ng-container matColumnDef="NumeroFone">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Número </th>
+            <td mat-cell *matCellDef="let element"> {{element.NumeroFone | phone}}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="Servico">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nome do Serviço </th>
+            <td mat-cell *matCellDef="let element"> {{element.Servico}}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="UrlRoot">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Url Root </th>
+            <td mat-cell *matCellDef="let element"> {{element.UrlRoot}} </td>
+        </ng-container>
+        <ng-container matColumnDef="EndPoint">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> End Point </th>
+            <td mat-cell *matCellDef="let element"> {{element.EndPoint}} </td>
+        </ng-container>
+        <ng-container matColumnDef="CNPJ">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CNPJ </th>
+            <td mat-cell *matCellDef="let element"> {{element.CNPJ | cnpj}}</td>
+        </ng-container>
+        <ng-container matColumnDef="Ativo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Ativo </th>
+            <td mat-cell *matCellDef="let element"> {{element.Ativo}} </td>
+        </ng-container>
+        <ng-container matColumnDef="acao">
+            <th mat-header-cell *matHeaderCellDef> Ação </th>
+            <td mat-cell *matCellDef="let element">
+                <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="editar(element)">edit</mat-icon>
+                <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="apagar(element)">delete</mat-icon>
+            </td>
+
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</div>

@@ -1,0 +1,59 @@
+<div *ngIf="!cadastro" class="example-container" flexLayout>
+    <div class="example-container">
+        <div class="container top10" flexLayout>
+            <mat-form-field fxFlex>
+                <input matInput #txtBusca (keyup)="applyFilter($event.target.value)" #txtBusca style="width: 90%"
+                    placeholder="Procurar por">
+                <button mat-button *ngIf="txtBusca.value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="txtBusca.value=''">
+                    <mat-icon>close</mat-icon>
+                </button>
+
+            </mat-form-field>
+
+            <mat-form-field fxFlex>
+                <mat-select placeholder="Domínios"
+                    (selectionChange)="selecionado($event.value)">
+                    <mat-option *ngFor="let item of dominiosTipo" [value]="item.Id">{{item.Texto}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-paginator fxFlex style="right: 0px; top: 10; position: absolute" #paginator [pageSize]="100"
+                showFirstLastButtons [pageSizeOptions]="[5, 10, 20, 100]">
+            </mat-paginator>
+        </div>
+        <table mat-table #table [dataSource]="dataSource" matSort class="mat-elevation-z8 top10">
+            <ng-container matColumnDef="Id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+                <td mat-cell *matCellDef="let element"> {{element.Id}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Codigo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Código </th>
+                <td mat-cell *matCellDef="let element"> {{element.Codigo }} </td>
+            </ng-container>
+            <ng-container matColumnDef="Nome">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Nome </th>
+                <td mat-cell *matCellDef="let element"> {{element.Nome}}
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="Descricao">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Descrição </th>
+                <td mat-cell *matCellDef="let element"> {{element.Descricao}}
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="acao">
+                <th mat-header-cell *matHeaderCellDef> Ação </th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="editar(element)">edit</mat-icon>
+                    <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="apagar(element)">delete</mat-icon>
+                </td>
+
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+</div>
+<div *ngIf="cadastro" class="example-container" flexLayout [formGroup]="formGroup">
+
+</div>

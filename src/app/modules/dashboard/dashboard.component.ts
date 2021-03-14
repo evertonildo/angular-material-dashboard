@@ -47,7 +47,9 @@ export class DashboardComponent implements OnInit {
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
-  constructor(private dashboardService: DashboardService) { }
+  constructor(private dashboardService: DashboardService) {
+    document.title = 'Dashboard - CCS';
+  }
 
   ngOnInit() {
     this.bigChart = this.dashboardService.bigChart();

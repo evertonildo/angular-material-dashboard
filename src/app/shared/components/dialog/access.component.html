@@ -1,0 +1,26 @@
+<div class="example-container mat-elevation-z8" [formGroup]="formGroup">
+
+
+    <h1 mat-dialog-title i18n>Bem vindo </h1>
+    <div mat-dialog-content>
+        <p>Essa ação é necessária apena uma vez durante seu horário de trabalho.
+            Não esqueça de fazer LOGOUT no final do seu horário para evitar que o próximo usuário registre os chamados
+            em
+            seu nome.</p>
+        <div class="container">
+            <mat-form-field fxFlex>
+                <input matInput placeholder='User Login' formControlName="user">
+            </mat-form-field>
+        </div>
+        <div class="container">
+            <mat-form-field fxFlex>
+                <input matInput type="password" placeholder='Senha' formControlName="password">
+            </mat-form-field>
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-button (click)="onNoClick()" i18n>Cancelar Login</button>
+        <button mat-button (click)="onClick(formGroup.value)" cdkFocusInitial i18n>Entrar</button>
+    </div>
+
+</div>
