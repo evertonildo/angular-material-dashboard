@@ -60,6 +60,14 @@ export class EndpointsComponent implements OnInit {
 
     this.listar();
   }
+
+  novo() {
+
+  }
+
+  applyFilter(event: any) {
+
+  }
   listar() {
     this.services.httpGet('endpoints')
       .subscribe(r => {

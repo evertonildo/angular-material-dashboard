@@ -110,6 +110,10 @@ export class TicketsComponent implements OnInit {
 
   }
 
+  applyFilter(event: any){
+    
+  }
+
   listar(phoneNumber: string) {
     this.services.httpGet('customer-services/' + phoneNumber)
       .subscribe(r => {

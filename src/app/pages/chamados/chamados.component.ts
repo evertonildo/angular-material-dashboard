@@ -80,6 +80,10 @@ export class ChamadosComponent implements OnInit {
     this.listar(event);
   }
 
+  applyFilter(event: any){
+    
+  }
+
   ngOnInit(): void {
     this.inicializacao();
     if (this.route.snapshot.params.id !== undefined) {
