@@ -213,7 +213,7 @@ export class ExternalService {
    * @param numeroChamado número que o cliente chamou na central
    * @returns O registro de endpoint cadastrado
    */
-  public buscaEndpoint(numeroChamado: string): Observable<any> {
+  public endpointByPhone(numeroChamado: string): Observable<any> {
     console.log('buscaEndpoint', numeroChamado, 'endpointbyphone/' + numeroChamado);
     return this.httpGet('endpointbyphone/' + numeroChamado);
   }

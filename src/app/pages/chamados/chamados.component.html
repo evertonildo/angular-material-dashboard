@@ -69,25 +69,24 @@
   </div>
 </div>
 
-<div class="example-container">
-  <div class="container top10" flexLayout>
-    <mat-form-field fxFlex>
+<div class="example-container" *ngIf="licenciada !==undefined && licenciada.UrlRoot !== ''">
+  <div class="container top10" fxLayout="row">
+    <mat-form-field fxFlex="40">
       <input matInput #txtBusca (keyup)="applyFilter($event.target.value)" #txtBusca style="width: 90%"
         placeholder="Procurar por">
       <button mat-button *ngIf="txtBusca.value" matSuffix mat-icon-button aria-label="Clear"
         (click)="txtBusca.value=''">
         <mat-icon>close</mat-icon>
       </button>
-
     </mat-form-field>
-
+    <div fxFlex="1"></div>
     <mat-form-field fxFlex>
       <mat-select placeholder="Licenciadas com Chamados" (selectionChange)="selectedPhoneNumber($event.value)">
         <mat-option *ngFor="let item of calledPhones" [value]="item.Id">{{item.Texto}}</mat-option>
       </mat-select>
     </mat-form-field>
-
-    <mat-paginator fxFlex style="right: 0px; top: 10; position: absolute" #paginator [pageSize]="100"
+    <div fxFlex="1"></div>
+    <mat-paginator fxFlex="40" style="right: 0px; top: 10; position: absolute" #paginator [pageSize]="100"
       showFirstLastButtons [pageSizeOptions]="[5, 10, 20, 100]">
     </mat-paginator>
   </div>
@@ -135,6 +134,12 @@
   </table>
 </div>
 
+<div class="container top10" fxLayout="row">
+  <button mat-button (click)="solicitarAtendimento()" color="primary">Solicitar Atendimento</button>
+  <button mat-button  (click)="solicitarRemocao()" color="secundary">Solicitar Remoção</button>
+  <button mat-button  (click)="solicitarTeleconsulta()" color="tertiary">Solicitar Teleconsulta</button>
+  <button mat-button disabled>Disponível</button>
+</div>
 <!--
 
   <audio kjb-settings-id="color_audio_chrome" preload="auto" src="https://kajabi-storefronts-production.s3.amazonaws.com/posts/14283054/downloads/1VIes8i2RZm0RRZkInEm__02_G-Force_-_Present_Continuous_-_Audio_aula.mp3?response-content-disposition=attachment%3B%20filename%3D_02_G-Force_-_Present_Continuous_-_Audio_aula.mp3&amp;X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAI4TIKYMSB4PQMFBA%2F20210310%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date=20210310T225512Z&amp;X-Amz-Expires=604800&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=fb7861ec232f11cccd4c74e1274283311d517bea05a7a6da635d7d3f91f7b2c7"></audio>

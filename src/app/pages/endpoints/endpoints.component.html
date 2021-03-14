@@ -7,8 +7,8 @@
                 </mat-panel-title>
             </mat-expansion-panel-header>
 
-            <div class="container" fxLayout [formGroup]="formGroup">
-                <div class="container">
+            <div class="container" [formGroup]="formGroup">
+                <div fxLayout="row" class="container">
                     <mat-form-field fxFlex>
                         <!--mat-label>Licenciada</mat-label-->
                         <mat-select (selectionChange)="selectLicenciada()" placeholder="Licenciadas"
@@ -27,9 +27,7 @@
                         <input matInput formControlName="NumeroFone" placeholder="Número de acesso">
                     </mat-form-field>
 
-                </div>
-                <hr>
-                <div class="container">
+
                     <mat-form-field fxFlex>
                         <input matInput formControlName="Servico" placeholder="Nome do serviço">
                     </mat-form-field>
@@ -38,6 +36,11 @@
                     <div fxFlex="7%">
                         <mat-checkbox formControlName="Ativo">Ativo</mat-checkbox>
                     </div>
+                    <div fxFlex="7%">
+                        <mat-checkbox formControlName="EhBotao">É Botão</mat-checkbox>
+                    </div>
+                </div>
+                <div fxLayout="row" class="container">
                     <div fxFlex="1"></div>
                     <mat-form-field fxFlex>
                         <input matInput placeholder="Url Root" formControlName="UrlRoot" />
@@ -104,8 +107,8 @@
             <td mat-cell *matCellDef="let element"> {{element.CNPJ | cnpj}}</td>
         </ng-container>
         <ng-container matColumnDef="Ativo">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Ativo </th>
-            <td mat-cell *matCellDef="let element"> {{element.Ativo}} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Ativo / É Botão </th>
+            <td mat-cell *matCellDef="let element"> {{element.Ativo === 'S' ? 'Sim' : 'Não'}}<br/>{{element.EhBotao ? 'Sim' : 'Não'}} </td>
         </ng-container>
         <ng-container matColumnDef="acao">
             <th mat-header-cell *matHeaderCellDef> Ação </th>

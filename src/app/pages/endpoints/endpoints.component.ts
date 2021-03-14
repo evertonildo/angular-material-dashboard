@@ -24,7 +24,7 @@ export class EndpointsComponent implements OnInit {
   dataSource: any;
 
   displayedColumns: string[] = [
-    "id", "licenciada", "NumeroFone", "Servico", "UrlRoot", "EndPoint", "CNPJ", "acao",
+    "id", "licenciada", "NumeroFone", "Servico", "UrlRoot", "EndPoint", "CNPJ","Ativo", "acao",
   ];
 
 
@@ -42,6 +42,7 @@ export class EndpointsComponent implements OnInit {
   createFormGroup() {
     this.formGroup = this._formBuild.group({
       Ativo: new FormControl(this.registro.Ativo, [Validators.required]),
+      EhBotao: new FormControl(this.registro.EhBotao, [Validators.required]),
       LicenciadaId: new FormControl(this.registro.LicenciadaId, [Validators.required]),
       CNPJ: new FormControl(this.registro.CNPJ, [Validators.required]),
       Servico: new FormControl(this.registro.Servico, [Validators.required]),

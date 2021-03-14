@@ -81,30 +81,32 @@ export class ChamadosComponent implements OnInit {
     this.listar(event);
   }
 
-  applyFilter(event: any){
-    
+  applyFilter(event: any) {
+
   }
 
   ngOnInit(): void {
     this.inicializacao();
     if (this.route.snapshot.params.id !== undefined) {
+
       this.numeroChamado = this.route.snapshot.params.id.split('.')[0];
       this.numeroChamador = this.route.snapshot.params.id.split('.')[1];
-      this.services.buscaEndpoint(this.numeroChamado).subscribe(r => {
+      this.services.endpointByPhone(this.numeroChamado).subscribe(r => {
         this.licenciada = r.registro;
         console.log('buscaEndpoint', this.licenciada);
+
         let dadosBusca = {
           CNPJ: this.licenciada.CNPJ,
           UrlRoot: this.licenciada.UrlRoot,
           EndPoint: this.licenciada.EndPoint,
           numeroChamador: this.numeroChamador
         };
-
-        this.services.httpGet('endpointList/'+this.numeroChamado)
-        .subscribe(r=> {
-          this.endpoints = r.lista;
-          _log('endpoints', this.endpoints)
-        }, erro => console.log(erro));
+        /**Buscar todos os endpoints do numero chamado */
+        this.services.httpGet('endpointList/' + this.numeroChamado)
+          .subscribe(r => {
+            this.endpoints = r.lista;
+            _log('endpoints', this.endpoints)
+          }, erro => console.log(erro));
 
         ///  http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com/callcenter
         this.services.buscaClienteChamadorNaLicenciada(dadosBusca).subscribe(r => {
@@ -203,6 +205,33 @@ export class ChamadosComponent implements OnInit {
 
         console.log('retorno new', r, this.registro);
       }, erro => console.log(erro));
+  }
+
+  solicitarAtendimento() {
+    let capsula = {
+      num_fone_contato: this.registro.RequesterPhone,
+      nom_solicitante: this.registro.Requester,
+      flg_status: 'A',
+      observacao: this.registro.Observations,
+      fk_solicitante_funcao: this.registro.SolicitanteFuncaoId,
+      fk_tipo_ligacao: "corporativo.fnc_getdominioid('Solicita Atendimento', 'TipoLigacao')",
+      fk_prestadora: `corporativo.fnc_getsacadobycnpjid('${this.licenciada.CNPJ}')`,
+      fk_cliente: this.callCLiente.pk_sacado,
+      fk_contrato: this.registro.ContractId,
+      num_fone_fixo: this.registro.SourcePhone
+    }
+    this.services.httpPost('triagem', capsula)
+      .subscribe(r => {
+        _log('retorno solicita atendiento', r);
+      }, erro => console.log(erro));
+  }
+
+  solicitarRemocao() {
+
+  }
+
+  solicitarTeleconsulta() {
+
   }
 
   private prepareToSave(formModel: Chamado): void {

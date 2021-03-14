@@ -10,7 +10,8 @@ export class Chamado {
         public ContractId: number = null,
         public AvaliableServices: string = "",
         public Observations: string = "",
-        public AssuntoId: number = null
+        public AssuntoId: number = null,
+        public SolicitanteFuncaoId: number =null
     ) {
 
     }

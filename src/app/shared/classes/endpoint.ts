@@ -9,6 +9,7 @@ export class EndPoint {
         public UrlRoot: string = "",
         public EndPoint: string = "",
         public Ativo: string = "S",
+        public EhBotao = true, 
         public UserId: number = null,
         public UserName: string = "") {
     }

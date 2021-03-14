@@ -14,13 +14,24 @@ fieldset {
   border-radius: 10px !important;
 }
 
-.container {
+.container2 {
   position: relative;
   display: flex;
   flex: 1 1 0%;
   width: 100%;
   min-height: 0;
   min-width: 0;
+}
+
+.container {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @import "app/app.component";
