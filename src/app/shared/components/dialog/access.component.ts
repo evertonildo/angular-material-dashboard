@@ -6,6 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { environment } from 'src/environments/environment';
 import { _log, CriptografarMD5 } from '../../services/constantes';
 import { ExternalService } from '../../services/external.service';
 
@@ -46,6 +47,14 @@ export class AccessComponent implements OnInit {
     _log('login', login);
     this.service.login(login).subscribe((result) => {
       _log('login', result);
+      this.service.userId = result.id;
+      this.service.userName = result.registro.nome;
+      this.service.userNick = result.registro.comoEhConhecido;
+      this.service.userAvatar = result.registro.usuario.imgAvatar;
+      this.service.Perfil = result.registro.usuario.perfil;
+      this.service.userCPF = result.registro.cpf;
+      this.service.userLicenciadaCNPJ = environment.cnpjCentral;
+
       this.dialogRef.close(result);
     });
   }

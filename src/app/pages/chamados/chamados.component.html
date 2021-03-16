@@ -1,10 +1,10 @@
 <div class="example-container" flexLayout [formGroup]="formGroup">
   <div class="example-container" *ngIf="registro?.Id > 0">
-    <fieldset>
+    <fieldset fxLayout="row">
       <legend>
         Dados da Chamada #{{registro?.Id }}
       </legend>
-      <div class="container">
+      <div fxLayout="row" class="container">
         <div fxFlex>
           <label>Número Discado</label>
           <p>{{targetPhone}}</p>
@@ -18,7 +18,7 @@
           <p>{{licenciada?.CNPJ | cnpj}}</p>
         </div>
       </div>
-      <div class="container">
+      <div fxLayout="row" class="container">
         <div fxFlex>
           <label>Número Discador</label>
           <p>{{numeroChamador}}</p>
@@ -34,7 +34,7 @@
       </div>
     </fieldset>
 
-    <div flexLayout class="container">
+    <div fxLayout="row" class="container">
       <mat-form-field fxFlex>
         <input matInput formControlName="Requester" placeholder="Solicitante">
       </mat-form-field>
@@ -50,14 +50,21 @@
       </mat-form-field>
     </div>
 
-    <div class="container">
+    <div fxLayout="row" class="container">
       <mat-form-field fxFlex>
         <textarea matInput placeholder="Observações" formControlName="Observations"></textarea>
       </mat-form-field>
       <div fxFlex="1"></div>
       <mat-form-field fxFlex="15">
-        <mat-select placeholder="Assunto" formControlName="AssuntoId">
+        <mat-select placeholder="Assunto" formControlName="AssuntoId" required>
           <mat-option *ngFor="let item of assuntos" [value]="item.Id">{{item.Texto}}</mat-option>
+        </mat-select>
+        <div fxFlex="1"></div>
+      </mat-form-field>
+      <div fxFlex="1"></div>
+      <mat-form-field fxFlex="15">
+        <mat-select placeholder="Função Solicitante" formControlName="SolicitanteFuncaoId" required>
+          <mat-option *ngFor="let item of funcoes" [value]="item.Id">{{item.Texto}}</mat-option>
         </mat-select>
         <div fxFlex="1"></div>
       </mat-form-field>
@@ -69,7 +76,7 @@
   </div>
 </div>
 
-<div class="example-container" *ngIf="licenciada !==undefined && licenciada.UrlRoot !== ''">
+<div class="example-container" *ngIf="registro?.Id === 0">
   <div class="container top10" fxLayout="row">
     <mat-form-field fxFlex="40">
       <input matInput #txtBusca (keyup)="applyFilter($event.target.value)" #txtBusca style="width: 90%"
@@ -121,6 +128,10 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Atendido por </th>
       <td mat-cell *matCellDef="let element"> {{element.Usuario}}</td>
     </ng-container>
+    <ng-container matColumnDef="LinkId">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Link # </th>
+      <td mat-cell *matCellDef="let element"> {{element.AtendimentoId}}</td>
+    </ng-container>
     <ng-container matColumnDef="acao">
       <th mat-header-cell *matHeaderCellDef> Ação </th>
       <td mat-cell *matCellDef="let element">
@@ -135,9 +146,15 @@
 </div>
 
 <div class="container top10" fxLayout="row">
-  <button mat-button (click)="solicitarAtendimento()" color="primary">Solicitar Atendimento</button>
-  <button mat-button  (click)="solicitarRemocao()" color="secundary">Solicitar Remoção</button>
-  <button mat-button  (click)="solicitarTeleconsulta()" color="tertiary">Solicitar Teleconsulta</button>
+  <button mat-button (click)="solicitarAtendimento() " *ngIf="registro?.Id > 0 && habilitarSolicitacaoAtendimento"
+    [disabled]="linkId > 0" color="primary">Solicitar
+    Atendimento</button>
+  <button mat-button (click)="solicitarRemocao()" *ngIf="registro?.Id > 0 && habilitarSolicitacaoRemocao"
+    [disabled]="linkId > 0" color="secundary">Solicitar
+    Remoção</button>
+  <button mat-button (click)="solicitarTeleconsulta()" *ngIf="registro?.Id > 0 && habilitarSolicitacaoTeleconsulta"
+    [disabled]="linkId > 0" color="tertiary">Solicitar
+    Teleconsulta</button>
   <button mat-button disabled>Disponível</button>
 </div>
 <!--

@@ -10,6 +10,9 @@ import { _isNullOrEmpty, _log } from './constantes';
   providedIn: 'root',
 })
 export class ExternalService {
+  clearUserData() {
+    this.localStorage.clear();
+  }
   public buscaCustomerService(id: number) {
     return this.httpGet('customer-service/' + id);
   }
@@ -76,7 +79,7 @@ export class ExternalService {
     return this.httpClient.get(environment.url + metodo, { headers: this.getHeaders(), });
   }
 
-  public httpPost(metodo: string, body: any): Observable<any> {
+  public httpPost(metodo: string, body: any, newHeaders: HttpHeaders = null): Observable<any> {
     if (_isNullOrEmpty(body.UsuarioCPF)) {
       body.UsuarioCPF = this.userCPF;
     }
@@ -84,7 +87,10 @@ export class ExternalService {
       body.LicenciadaCNPJ = this.userLicenciadaCNPJ;
     }
 
-    return this.httpClient.post(environment.url + metodo, JSON.stringify(body), { headers: this.getHeaders(), });
+    if (newHeaders === null)
+      newHeaders = this.getHeaders();
+
+    return this.httpClient.post(environment.url + metodo, JSON.stringify(body), { headers: newHeaders });
   }
 
   public httpPut(metodo: string, body: any): Observable<any> {

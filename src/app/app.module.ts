@@ -10,10 +10,9 @@ import { ChamadosComponent } from './pages/chamados/chamados.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import { AccessModule } from './shared/components/dialog/access.module';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MAT_DATE_LOCALE, MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatExpansionModule, MatCheckboxModule, MatIconModule } from '@angular/material';
+import { MAT_DATE_LOCALE, MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatExpansionModule, MatCheckboxModule, MatIconModule, MatSnackBarModule } from '@angular/material';
 import { ExternalService } from './shared/services/external.service';
 import { HttpClientModule } from '@angular/common/http';
 import { EndpointsModule } from './pages/endpoints/endpoints.module';
@@ -24,13 +23,16 @@ import { OraculoDirectivesModule } from './shared/directives/oraculo-directives'
 import { MyPipesModule } from './shared/pipes/pipes.module';
 import { MaterialModulos } from './material-modulos.module';
 import { TicketsComponent } from './pages/tickets/tickets.component';
+import { DlgMensagemModule } from './shared/components/dlg-mensagem/dlg-mensagem.module';
+import { AccessComponent } from './shared/components/dialog/access.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AssuntosComponent,
     ChamadosComponent,
-    TicketsComponent
+    TicketsComponent,
+    AccessComponent
   ],
   imports: [
     CommonModule,
@@ -43,8 +45,8 @@ import { TicketsComponent } from './pages/tickets/tickets.component';
     DefaultModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatSnackBarModule,
     MatInputModule,
-    AccessModule,
     MatButtonModule,
     MatTabsModule,
     MatDialogModule,
@@ -54,9 +56,11 @@ import { TicketsComponent } from './pages/tickets/tickets.component';
     OraculoDirectivesModule,
     MyPipesModule,
     MaterialModulos,
-    MatIconModule
+    MatIconModule,
+    DlgMensagemModule
   ],
   exports: [OraculoDirectivesModule, MyPipesModule, MaterialModulos],
+  entryComponents: [AccessComponent],
   providers: [
     ExternalService,
     // { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },

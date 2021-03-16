@@ -1,10 +1,10 @@
 <mat-nav-list>
     <div class="profile-card">
-        <div class="header">
-            <h2>Evertonildo Maia</h2>
-            <h4>evertonildo@gmail.com</h4>
+        <div class="header pointer  " (click)="logout()">
+            <h2>{{services.userName}}</h2>
+            <h4>{{services.Perfil}}</h4>
         </div>
-        <img src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Soufiane FADIL">
+        <img src="../../../../assets/images/MicrosoftTeams-image.png" alt="Soufiane FADIL">
     </div>
 
     <mat-divider></mat-divider>
@@ -28,9 +28,9 @@
     </a>
     
 
-    <a mat-list-item routerLinkActive="list-item-active" routerLink="/contacts">
-        <mat-icon>contact_phone</mat-icon>
-        Leads
+    <a mat-list-item routerLinkActive="list-item-active" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        LogOut
     </a>
 
 </mat-nav-list>

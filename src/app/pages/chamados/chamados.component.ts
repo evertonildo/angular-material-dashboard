@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { Chamado } from 'src/app/shared/classes/chamado';
+import { DlgMensagemComponent } from 'src/app/shared/components/dlg-mensagem/dlg-mensagem.component';
 import { _log } from 'src/app/shared/services/constantes';
 import { ExternalService } from 'src/app/shared/services/external.service';
 import { environment } from 'src/environments/environment';
@@ -38,6 +40,7 @@ export class ChamadosComponent implements OnInit {
     "Requester",
     "Assunto",
     "Usuario",
+    "LinkId",
     "acao",
   ];
   dataSource;
@@ -47,16 +50,27 @@ export class ChamadosComponent implements OnInit {
   calledPhones: any[];
   selectedPhone: string;
   endpoints: any[];
+  funcoes: any[];
+  linkId: number;
+  habilitarSolicitacaoAtendimento: boolean;
+  habilitarSolicitacaoRemocao: boolean;
+  habilitarSolicitacaoTeleconsulta: boolean;
 
   constructor(private services: ExternalService,
     private route: ActivatedRoute,
     private _fb: FormBuilder) {
     document.title = 'Chamados - CCS';
     this.contratos = [];
+
+    this.habilitarSolicitacaoAtendimento = false;
+    this.habilitarSolicitacaoRemocao = false;
+    this.habilitarSolicitacaoTeleconsulta = false;
+
     if (this.route.snapshot.params.id !== undefined) {
       this.targetPhone = this.route.snapshot.params.id.split('.')[0];
       this.sourcePhone = this.route.snapshot.params.id.split('.')[1];
     }
+    this.linkId = 0;
     this.registro = new Chamado(0, this.targetPhone, this.sourcePhone, 0, 0);
     this.createFormGroup();
   }
@@ -72,7 +86,8 @@ export class ChamadosComponent implements OnInit {
       ContractId: new FormControl(this.registro.ContractId),
       AvaliableServices: new FormControl(this.registro.AvaliableServices),
       Observations: new FormControl(this.registro.Observations),
-      AssuntoId: new FormControl(this.registro.AssuntoId, [Validators.required])
+      AssuntoId: new FormControl(this.registro.AssuntoId, [Validators.required]),
+      SolicitanteFuncaoId: new FormControl(this.registro.SolicitanteFuncaoId, [Validators.required])
     });
   }
 
@@ -81,8 +96,8 @@ export class ChamadosComponent implements OnInit {
     this.listar(event);
   }
 
-  applyFilter(event: any) {
-
+  applyFilter(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   ngOnInit(): void {
@@ -105,6 +120,9 @@ export class ChamadosComponent implements OnInit {
         this.services.httpGet('endpointList/' + this.numeroChamado)
           .subscribe(r => {
             this.endpoints = r.lista;
+            this.habilitarSolicitacaoAtendimento = (this.endpoints.find(end => end.Servico === 'Abrir Atendimento') !== undefined);
+            this.habilitarSolicitacaoRemocao = (this.endpoints.find(end => end.Servico === 'Abrir Remocao') !== undefined);
+            this.habilitarSolicitacaoTeleconsulta = (this.endpoints.find(end => end.Servico === 'Abrir Teleconsulta') !== undefined);
             _log('endpoints', this.endpoints)
           }, erro => console.log(erro));
 
@@ -160,6 +178,11 @@ export class ChamadosComponent implements OnInit {
       .subscribe(r => {
         this.calledPhones = r.lista;
       }, erro => console.log(erro));
+    this.services.httpGet('getlistcombo/FuncaoSolicitante')
+      .subscribe(r => {
+        this.funcoes = r;
+        _log('funcoes', this.funcoes);
+      }, erro => console.log(erro));
 
   }
 
@@ -208,30 +231,130 @@ export class ChamadosComponent implements OnInit {
   }
 
   solicitarAtendimento() {
+    let funcao = this.funcoes.find(x => x.Id === this.registro.SolicitanteFuncaoId);
+    _log('funcao', funcao);
+    _log('registro', this.registro);
     let capsula = {
-      num_fone_contato: this.registro.RequesterPhone,
-      nom_solicitante: this.registro.Requester,
-      flg_status: 'A',
-      observacao: this.registro.Observations,
-      fk_solicitante_funcao: this.registro.SolicitanteFuncaoId,
-      fk_tipo_ligacao: "corporativo.fnc_getdominioid('Solicita Atendimento', 'TipoLigacao')",
-      fk_prestadora: `corporativo.fnc_getsacadobycnpjid('${this.licenciada.CNPJ}')`,
-      fk_cliente: this.callCLiente.pk_sacado,
-      fk_contrato: this.registro.ContractId,
-      num_fone_fixo: this.registro.SourcePhone
+      registro: {
+        SolicitanteFoneCel: this.registro.RequesterPhone,
+        SolicitanteNome: this.registro.Requester,
+        Status: 'A',
+        Observacao: this.registro.Observations,
+        SolicitanteFuncaoId: `corporativo.fnc_getdominioid('${funcao.Texto}', 'FuncaoSolicitante')`,
+        TipoLigacaoId: "corporativo.fnc_getdominioid('Solicita Atendimento', 'TipoLigacao')",
+        PrestadoraId: `corporativo.fnc_getsacadobycnpjid('${this.licenciada.CNPJ}')`,
+        ClienteId: this.registro.ClienteId === 1 ? "corporativo.fnc_getsacadobycnpjid('00000000000000')" : 1,
+        ContratoId: this.registro.ContractId,
+        SolicitanteFoneFixo: this.registro.SourcePhone,
+        CallCenterId: this.registro.Id
+      }
     }
-    this.services.httpPost('triagem', capsula)
+    // protocolo de cancelamneto da gazeta do povo 2082212
+    this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
       .subscribe(r => {
-        _log('retorno solicita atendiento', r);
+        _log('retorno solicita atendimento', r);
+        this.linkId = r.registro.Atendimento.pk_atendimento;
+        
+        this.services.httpPut('customer-service-link/' + this.registro.Id, {
+          registro: {
+            AtendimentoId: r.registro.Atendimento.pk_atendimento
+          }
+        })
+          .subscribe(rr =>
+            this.services.snackBar.open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento, 'Atendimento', {
+              duration: 60000
+            }).afterDismissed()
+              .subscribe(s => {
+                _log('afterDismissed');
+                document.close();
+              }));
+
       }, erro => console.log(erro));
   }
 
   solicitarRemocao() {
+    let funcao = this.funcoes.find(x => x.Id === this.registro.SolicitanteFuncaoId);
+    _log('funcao', funcao);
+    _log('registro', this.registro);
+    let capsula = {
+      registro: {
+        SolicitanteFoneCel: this.registro.RequesterPhone,
+        SolicitanteNome: this.registro.Requester,
+        Status: 'A',
+        Observacao: this.registro.Observations,
+        SolicitanteFuncaoId: `corporativo.fnc_getdominioid('${funcao.Texto}', 'FuncaoSolicitante')`,
+        TipoLigacaoId: "corporativo.fnc_getdominioid('REMOÇÃO', 'TipoLigacao')",
+        PrestadoraId: `corporativo.fnc_getsacadobycnpjid('${this.licenciada.CNPJ}')`,
+        ClienteId: this.registro.ClienteId === 1 ? "corporativo.fnc_getsacadobycnpjid('00000000000000')" : this.registro.ClienteId,
+        ContratoId: this.registro.ContractId,
+        SolicitanteFoneFixo: this.registro.SourcePhone,
+        CallCenterId: this.registro.Id
+      }
+    }
 
+    this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
+      .subscribe(r => {
+        _log('retorno solicita remoção', r);
+        
+        this.linkId = r.registro.Atendimento.pk_atendimento;
+        this.services.httpPut('customer-service-link/' + this.registro.Id, {
+          registro: {
+            AtendimentoId: r.registro.Atendimento.pk_atendimento
+          }
+        })
+          .subscribe(rr =>
+            this.services.snackBar.open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento,
+              'Remoção', {
+              duration: 60000
+            }).afterDismissed()
+              .subscribe(s => {
+                _log('afterDismissed');
+                document.close();
+              }));
+
+      }, erro => console.log(erro));
   }
 
   solicitarTeleconsulta() {
+    let funcao = this.funcoes.find(x => x.Id === this.registro.SolicitanteFuncaoId);
+    _log('funcao', funcao);
+    _log('registro', this.registro);
+    let capsula = {
+      registro: {
+        SolicitanteFoneCel: this.registro.RequesterPhone,
+        SolicitanteNome: this.registro.Requester,
+        Status: 'A',
+        Observacao: this.registro.Observations,
+        SolicitanteFuncaoId: `corporativo.fnc_getdominioid('${funcao.Texto}', 'FuncaoSolicitante')`,
+        TipoLigacaoId: "corporativo.fnc_getdominioid('Teleconsulta', 'TipoLigacao')",
+        PrestadoraId: `corporativo.fnc_getsacadobycnpjid('${this.licenciada.CNPJ}')`,
+        ClienteId: this.registro.ClienteId === 1 ? "corporativo.fnc_getsacadobycnpjid('00000000000000')" : this.registro.ClienteId,
+        ContratoId: this.registro.ContractId,
+        SolicitanteFoneFixo: this.registro.SourcePhone,
+        CallCenterId: this.registro.Id
+      }
+    }
 
+    this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
+      .subscribe(r => {
+        _log('retorno solicita teleconsulta', r);
+        
+        this.linkId = r.registro.Atendimento.pk_atendimento;
+        this.services.httpPut('customer-service-link/' + this.registro.Id, {
+          registro: {
+            AtendimentoId: r.registro.Atendimento.pk_atendimento
+          }
+        })
+          .subscribe(rr =>
+            this.services.snackBar.open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento, 'Teleconsulta', {
+              duration: 60000
+            }).afterDismissed()
+              .subscribe(s => {
+                _log('afterDismissed');
+                document.close();
+              }));
+
+      }, erro => console.log(erro));
   }
 
   private prepareToSave(formModel: Chamado): void {

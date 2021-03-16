@@ -3,7 +3,7 @@
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>
-                    Cadastrar Endpoint
+                    {{registro.Id === 0 ? 'Cadastrar novo Endpoint' : 'Edição do Endpoint #' + registro.Id}}
                 </mat-panel-title>
             </mat-expansion-panel-header>
 
@@ -52,6 +52,8 @@
                 </div>
             </div>
             <div fxFlexLayout="row-reverse">
+                <button mat-raised-button (click)="salvarComo()" *ngIf="registro.Id > 0" color="danger">Salvar
+                    Como</button>
                 <button mat-raised-button color="danger">Excluir</button>
                 <button mat-raised-button (click)="salvar(formGroup.value)" [disabled]="!formGroup.valid"
                     color="primary">Gravar</button>
@@ -108,7 +110,8 @@
         </ng-container>
         <ng-container matColumnDef="Ativo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Ativo / É Botão </th>
-            <td mat-cell *matCellDef="let element"> {{element.Ativo === 'S' ? 'Sim' : 'Não'}}<br/>{{element.EhBotao ? 'Sim' : 'Não'}} </td>
+            <td mat-cell *matCellDef="let element"> {{element.Ativo === 'S' ? 'Sim' : 'Não'}}<br />{{element.EhBotao ?
+                'Sim' : 'Não'}} </td>
         </ng-container>
         <ng-container matColumnDef="acao">
             <th mat-header-cell *matHeaderCellDef> Ação </th>

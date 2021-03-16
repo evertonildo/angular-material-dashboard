@@ -58,6 +58,7 @@ export class AppComponent implements OnInit {
           this.service.userName = result.registro.nome;
           this.service.userNick = result.registro.comoEhConhecido;
           this.service.userAvatar = result.registro.usuario.imgAvatar;
+          this.service.Perfil = result.registro.usuario.perfil;
           this.service.userCPF = result.registro.cpf;
           this.service.userLicenciadaCNPJ = environment.cnpjCentral;
           this.identificaUsuario();

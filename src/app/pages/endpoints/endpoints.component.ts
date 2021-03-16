@@ -24,7 +24,7 @@ export class EndpointsComponent implements OnInit {
   dataSource: any;
 
   displayedColumns: string[] = [
-    "id", "licenciada", "NumeroFone", "Servico", "UrlRoot", "EndPoint", "CNPJ","Ativo", "acao",
+    "id", "licenciada", "NumeroFone", "Servico", "UrlRoot", "EndPoint", "CNPJ", "Ativo", "acao",
   ];
 
 
@@ -66,8 +66,8 @@ export class EndpointsComponent implements OnInit {
 
   }
 
-  applyFilter(event: any) {
-
+  applyFilter(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
   listar() {
     this.services.httpGet('endpoints')
@@ -87,6 +87,12 @@ export class EndpointsComponent implements OnInit {
 
   apagar(element: any) {
 
+  }
+
+  salvarComo() {
+    this.registro.Id = 0;
+    this.services.snackBar
+      .open('Agora você pode alterar os dados que um novo registro será gerado!', 'Registro Copiado!', { duration: 5000 });
   }
 
   salvar(formModel: EndPoint) {
