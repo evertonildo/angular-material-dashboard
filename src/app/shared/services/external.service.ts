@@ -10,6 +10,12 @@ import { _isNullOrEmpty, _log } from './constantes';
   providedIn: 'root',
 })
 export class ExternalService {
+
+  public get userToken(): string { return this.getLocalStorage('_userToken'); }
+  public set userToken(value: string) {
+    if (value === null) this.removeStorage('_userToken'); else this.setLocalStorage("_userToken", value);
+  }
+
   clearUserData() {
     this.localStorage.clear();
   }
@@ -22,9 +28,9 @@ export class ExternalService {
     this.headers = this.headers.set('Content-Type', 'application/json');
   }
 
-  public get userData(): any { return this.getLocalStorage('_userCPF'); }
+  public get userData(): any { return this.getLocalStorage('_userData'); }
   public set userData(value: any) {
-    if (value === null) this.removeStorage('_userCPF'); else this.setLocalStorage("_userCPF", value);
+    if (value === null) this.removeStorage('_userData'); else this.setLocalStorage("_userData", value);
   }
 
   public get Perfil(): string { return this.getLocalStorage('_Perfil'); }

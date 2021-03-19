@@ -3,11 +3,11 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: true,
+  production: false,
   hmr:'', 
   cnpjCentral: '03319184000145', 
-  url1: 'http://localhost:3000/',
-  url: 'http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com:3000/'
+  url: 'http://localhost:3000/',
+  url2: 'http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com:3000/'
 };
 
 /*

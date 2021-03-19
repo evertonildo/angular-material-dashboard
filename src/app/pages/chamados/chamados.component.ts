@@ -6,7 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { Chamado } from 'src/app/shared/classes/chamado';
 import { DlgMensagemComponent } from 'src/app/shared/components/dlg-mensagem/dlg-mensagem.component';
-import { _log } from 'src/app/shared/services/constantes';
+import { _CodeBase64, _log } from 'src/app/shared/services/constantes';
 import { ExternalService } from 'src/app/shared/services/external.service';
 import { environment } from 'src/environments/environment';
 
@@ -30,19 +30,7 @@ export class ChamadosComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  displayedColumns = [
-    "Id",
-    "Data",
-    "Licenciada",
-    // "TargetPhone",
-    "Cliente",
-    // "SourcePhone",
-    "Requester",
-    "Assunto",
-    "Usuario",
-    "LinkId",
-    "acao",
-  ];
+  displayedColumns = ["Id", "Data", "Licenciada", "Cliente", "Requester", "Assunto", "Usuario", "LinkId", "acao"];
   dataSource;
 
   buttons: any[];
@@ -55,8 +43,11 @@ export class ChamadosComponent implements OnInit {
   habilitarSolicitacaoAtendimento: boolean;
   habilitarSolicitacaoRemocao: boolean;
   habilitarSolicitacaoTeleconsulta: boolean;
+  phoneToList: any;
+  token: string;
 
-  constructor(private services: ExternalService,
+  constructor(
+    public services: ExternalService,
     private route: ActivatedRoute,
     private _fb: FormBuilder) {
     document.title = 'Chamados - CCS';
@@ -93,11 +84,20 @@ export class ChamadosComponent implements OnInit {
 
   selectedPhoneNumber(event: any) {
     console.log('selectedPhoneNumber', event);
-    this.listar(event);
+    this.phoneToList = event;
+    this.listar(this.phoneToList);
   }
 
   applyFilter(filterValue: string) {
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  apagar(element: any) {
+    this.services.httpDelete('customer-services/' + element.id)
+      .subscribe(r => {
+        this.services.snackBar.open('Registro Apagado!', 'Exclusão de Registro', { duration: 5000 });
+        this.listar(this.phoneToList);
+      })
   }
 
   ngOnInit(): void {
@@ -196,13 +196,6 @@ export class ChamadosComponent implements OnInit {
       }, erro => console.log(erro));
   }
 
-  /**
-   * 
-   * @param clienteId Id do cliente
-   * @param licenciadaId Id da Licenciada
-   * @param numeroChamador Número do cliente
-   * @param numeroChamado Número chamado da licenciada 
-   */
   registerCustomerService(clienteId: any, licenciadaId: any, numeroChamador: any, numeroChamado: any) {
     this.registro.ClienteId = clienteId;
     this.registro.LicenciadaId = licenciadaId;
@@ -223,7 +216,8 @@ export class ChamadosComponent implements OnInit {
             this.registro = r.registro;
             console.log('registro', this.registro);
             this.createFormGroup();
-            this.listar(this.numeroChamado);
+            this.phoneToList = this.numeroChamado;
+            this.listar(this.phoneToList);
           }, erro => console.log(erro));
 
         console.log('retorno new', r, this.registro);
@@ -232,9 +226,7 @@ export class ChamadosComponent implements OnInit {
 
   solicitarAtendimento() {
     let funcao = this.funcoes.find(x => x.Id === this.registro.SolicitanteFuncaoId);
-    _log('funcao', funcao);
-    _log('registro', this.registro);
-    let capsula = {
+    const capsula = {
       registro: {
         SolicitanteFoneCel: this.registro.RequesterPhone,
         SolicitanteNome: this.registro.Requester,
@@ -252,25 +244,34 @@ export class ChamadosComponent implements OnInit {
     // protocolo de cancelamneto da gazeta do povo 2082212
     this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
       .subscribe(r => {
-        _log('retorno solicita atendimento', r);
-        this.linkId = r.registro.Atendimento.pk_atendimento;
-        
-        this.services.httpPut('customer-service-link/' + this.registro.Id, {
-          registro: {
-            AtendimentoId: r.registro.Atendimento.pk_atendimento
-          }
-        })
-          .subscribe(rr =>
-            this.services.snackBar.open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento, 'Atendimento', {
-              duration: 60000
-            }).afterDismissed()
-              .subscribe(s => {
-                _log('afterDismissed');
-                document.close();
-              }));
 
+        this.linkId = r.registro.Atendimento.pk_atendimento;
+        let cap = { registro: { AtendimentoId: r.registro.Atendimento.pk_atendimento } };
+        this.services.httpPut('customer-service-link/' + this.registro.Id, cap)
+          .subscribe(rr => {
+            this.services
+              .snackBar
+              .open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento, 'Atendimento', { duration: 60000 })
+              .afterDismissed()
+              .subscribe(s => {
+                var strWindowFeatures = "menubar=no,width=800, heigth=800, location=yes,resizable=yes,scrollbars=yes,status=yes";
+                this.token = _CodeBase64(this.services.userCPF + '.' +
+                  this.licenciada.CNPJ + '.' +
+                  r.registro.Atendimento.pk_atendimento +
+                  '.AbrirAtendimento' + '.' +
+                  this.services.userToken,
+                  this.services.userCPF,
+                  this.services.userLicenciadaCNPJ);
+
+                const myWindow = window.open("http://localhost:4200?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
+                // const myWindow = window.open("http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com/audita?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
+                // chrome.windows.create({"url": url, "incognito": true});
+
+              }, erro => console.log(erro));
+          }, erro => { console.log(erro); });
       }, erro => console.log(erro));
   }
+
 
   solicitarRemocao() {
     let funcao = this.funcoes.find(x => x.Id === this.registro.SolicitanteFuncaoId);
@@ -295,7 +296,7 @@ export class ChamadosComponent implements OnInit {
     this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
       .subscribe(r => {
         _log('retorno solicita remoção', r);
-        
+
         this.linkId = r.registro.Atendimento.pk_atendimento;
         this.services.httpPut('customer-service-link/' + this.registro.Id, {
           registro: {
@@ -338,7 +339,7 @@ export class ChamadosComponent implements OnInit {
     this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
       .subscribe(r => {
         _log('retorno solicita teleconsulta', r);
-        
+
         this.linkId = r.registro.Atendimento.pk_atendimento;
         this.services.httpPut('customer-service-link/' + this.registro.Id, {
           registro: {

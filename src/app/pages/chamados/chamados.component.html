@@ -136,7 +136,7 @@
       <th mat-header-cell *matHeaderCellDef> Ação </th>
       <td mat-cell *matCellDef="let element">
         <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="editar(element)">edit</mat-icon>
-        <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="apagar(element)">delete</mat-icon>
+        <mat-icon class="pointer" *ngIf="element.Id > 0 && services.userCPF === '44086423391'" (click)="apagar(element)">delete</mat-icon>
       </td>
 
     </ng-container>

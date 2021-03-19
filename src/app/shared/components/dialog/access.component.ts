@@ -43,7 +43,7 @@ export class AccessComponent implements OnInit {
       Senha: CriptografarMD5(form.password),
       CNPJ: '',
     };
-
+    this.service.userToken = CriptografarMD5(form.password);
     _log('login', login);
     this.service.login(login).subscribe((result) => {
       _log('login', result);
