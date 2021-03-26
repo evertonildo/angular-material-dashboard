@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { AccessComponent } from './shared/components/dialog/access.component';
 import { _log } from './shared/services/constantes';
+import { AccessComponent } from './shared/components/dialog/access.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { ExternalService } from './shared/services/external.service';
+import { MatDialog } from '@angular/material';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -47,7 +47,8 @@ export class AppComponent implements OnInit {
     if (!this.service.userLogged) {
       const dialogRef = this.dialog.open(AccessComponent, {
         data: {},
-        width: '40%',
+        width: '50%',
+        height: '50%',
         disableClose: true,
       });
 

@@ -1,6 +1,6 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDividerModule, MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatListModule } from '@angular/material';
+import { MatDividerModule, MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatListModule, MatFormFieldModule, MatCardModule, MatInputModule } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
 
@@ -12,7 +12,8 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { CardComponent } from './widgets/card/card.component';
 import { PieComponent } from './widgets/pie/pie.component';
 import { LogoutComponent } from './components/logout/logout.component';
-
+import { FormsModule } from '@angular/forms';
+import { MaterialModulos } from '../material-modulos.module';
 @NgModule({
   declarations: [
     HeaderComponent,
@@ -21,18 +22,14 @@ import { LogoutComponent } from './components/logout/logout.component';
     AreaComponent,
     CardComponent,
     PieComponent,
-    LogoutComponent
+    LogoutComponent,
   ],
   imports: [
     CommonModule,
-    MatDividerModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
+    FormsModule,
     FlexLayoutModule,
-    MatMenuModule,
-    MatListModule,
     RouterModule,
+    MaterialModulos,
     HighchartsChartModule
   ],
   exports: [
@@ -42,6 +39,7 @@ import { LogoutComponent } from './components/logout/logout.component';
     AreaComponent,
     CardComponent,
     PieComponent
-  ]
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SharedModule { }

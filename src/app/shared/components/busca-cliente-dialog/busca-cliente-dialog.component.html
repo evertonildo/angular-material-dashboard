@@ -1,0 +1,26 @@
+<mat-card class="example-card">
+    <mat-card-header>
+        <div mat-card-avatar class="example-header-image"></div>
+        <img mat-card-image src="../../../../assets/images/logo-sat.jpg" style="width:150px"
+            alt="Logomarca da Empresa Licenciada">
+        <mat-card-title>Alteração do Cliente </mat-card-title>
+        <mat-card-subtitle>Usuário Responsável: {{local.userName}}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+        <mat-form-field fxFlex="99">
+            <input matInput #textoPaciente placeholder="Digite o texto " (keyup)="buscaPaciente(textoPaciente.value)"
+                [(ngModel)]="local.textoBusca" [ngModelOptions]="{standalone: true}" [matAutocomplete]="auto1">
+
+            <mat-autocomplete #auto1="matAutocomplete" (optionSelected)='getPosts($event.option.value)'>
+                <mat-option *ngFor="let item of local.clienteList " style="word-break: break-all" [value]="item.Nome">
+                    {{ item.Nome}} | {{item.DataNascimento | date:'dd/MM/yyyy'}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-button>Cancelar</button>
+        <button mat-button (click)="enviar()">Enviar</button>
+    </mat-card-actions>
+</mat-card>

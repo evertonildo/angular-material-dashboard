@@ -24,8 +24,9 @@
           <p>{{numeroChamador}}</p>
         </div>
         <div fxFlex>
-          <label>Nome do Cliente (Chamador)</label>
-          <p>{{clienteChamador?.ComoEhConhecido}}</p>
+          <label class="pointer" (click)="ClientChange()">Nome do Cliente <span
+              style="font-size:9px">(Chamador)</span></label>
+          <p class="pointer" (click)="ClientChange()">{{clienteChamador?.ComoEhConhecido}}</p>
         </div>
         <div fxFlex>
           <label>CNPJ do Cliente</label>
@@ -136,7 +137,8 @@
       <th mat-header-cell *matHeaderCellDef> Ação </th>
       <td mat-cell *matCellDef="let element">
         <mat-icon class="pointer" *ngIf="element.Id > 0" (click)="editar(element)">edit</mat-icon>
-        <mat-icon class="pointer" *ngIf="element.Id > 0 && services.userCPF === '44086423391'" (click)="apagar(element)">delete</mat-icon>
+        <mat-icon class="pointer" *ngIf="element.Id > 0 && services.userCPF === '44086423391'"
+          (click)="apagar(element)">delete</mat-icon>
       </td>
 
     </ng-container>

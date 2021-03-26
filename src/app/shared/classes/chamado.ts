@@ -11,7 +11,7 @@ export class Chamado {
         public AvaliableServices: string = "",
         public Observations: string = "",
         public AssuntoId: number = null,
-        public SolicitanteFuncaoId: number =null
+        public SolicitanteFuncaoId: number = null
     ) {
 
     }

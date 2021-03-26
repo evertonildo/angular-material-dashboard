@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { Chamado } from 'src/app/shared/classes/chamado';
-import { DlgMensagemComponent } from 'src/app/shared/components/dlg-mensagem/dlg-mensagem.component';
+import { BuscaClienteDialogComponent } from 'src/app/shared/components/busca-cliente-dialog/busca-cliente-dialog.component';
 import { _CodeBase64, _log } from 'src/app/shared/services/constantes';
 import { ExternalService } from 'src/app/shared/services/external.service';
 import { environment } from 'src/environments/environment';
@@ -49,6 +49,7 @@ export class ChamadosComponent implements OnInit {
   constructor(
     public services: ExternalService,
     private route: ActivatedRoute,
+    private _dialog: MatDialog,
     private _fb: FormBuilder) {
     document.title = 'Chamados - CCS';
     this.contratos = [];
@@ -93,9 +94,10 @@ export class ChamadosComponent implements OnInit {
   }
 
   apagar(element: any) {
-    this.services.httpDelete('customer-services/' + element.id)
+    console.log('apagar', element);
+    this.services.httpDelete('customer-service/' + element.id)
       .subscribe(r => {
-        this.services.snackBar.open('Registro Apagado!', 'Exclusão de Registro', { duration: 5000 });
+        this.services.snackBar.open('Registro Apagado!', 'Exclusão de Registro', { duration: 2000 });
         this.listar(this.phoneToList);
       })
   }
@@ -106,67 +108,71 @@ export class ChamadosComponent implements OnInit {
 
       this.numeroChamado = this.route.snapshot.params.id.split('.')[0];
       this.numeroChamador = this.route.snapshot.params.id.split('.')[1];
-      this.services.endpointByPhone(this.numeroChamado).subscribe(r => {
-        this.licenciada = r.registro;
-        console.log('buscaEndpoint', this.licenciada);
+      this.services.endpointByPhone(this.numeroChamado)
+        .subscribe(r => {
+          this.licenciada = r.registro;
+          console.log('buscaEndpoint r', this.licenciada);
 
-        let dadosBusca = {
-          CNPJ: this.licenciada.CNPJ,
-          UrlRoot: this.licenciada.UrlRoot,
-          EndPoint: this.licenciada.EndPoint,
-          numeroChamador: this.numeroChamador
-        };
-        /**Buscar todos os endpoints do numero chamado */
-        this.services.httpGet('endpointList/' + this.numeroChamado)
-          .subscribe(r => {
-            this.endpoints = r.lista;
-            this.habilitarSolicitacaoAtendimento = (this.endpoints.find(end => end.Servico === 'Abrir Atendimento') !== undefined);
-            this.habilitarSolicitacaoRemocao = (this.endpoints.find(end => end.Servico === 'Abrir Remocao') !== undefined);
-            this.habilitarSolicitacaoTeleconsulta = (this.endpoints.find(end => end.Servico === 'Abrir Teleconsulta') !== undefined);
-            _log('endpoints', this.endpoints)
-          }, erro => console.log(erro));
+          let dadosBusca = {
+            CNPJ: this.licenciada.CNPJ,
+            UrlRoot: this.licenciada.UrlRoot,
+            EndPoint: this.licenciada.EndPoint,
+            numeroChamador: this.numeroChamador
+          };
+          console.log('dadosBusca', dadosBusca);
+          /**Buscar todos os endpoints do numero chamado */
+          this.services.httpGet('endpointList/' + this.numeroChamado)
+            .subscribe(r => {
+              this.endpoints = r.lista;
+              this.habilitarSolicitacaoAtendimento = (this.endpoints.find(end => end.Servico === 'Abrir Atendimento') !== undefined);
+              this.habilitarSolicitacaoRemocao = (this.endpoints.find(end => end.Servico === 'Abrir Remocao') !== undefined);
+              this.habilitarSolicitacaoTeleconsulta = (this.endpoints.find(end => end.Servico === 'Abrir Teleconsulta') !== undefined);
+              _log('endpoints', this.endpoints)
+            }, erro => console.log(erro));
 
-        ///  http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com/callcenter
-        this.services.buscaClienteChamadorNaLicenciada(dadosBusca).subscribe(r => {
-          console.log('buscaClienteChamadorNaLicenciada 2', r);
-          //if (r.registro === undefined) {
-          //  this.clienteChamador = { Id: 1, Nome: 'Não Identificado', ComoEhConhecido:'Não Identificado' }
-          //} else
-          this.clienteChamador = r.registro;
-          console.log('clienteChamador', this.clienteChamador);
-          if (this.clienteChamador === undefined) {
-            this.clienteChamador = { Id: 1, Nome: 'Não Identificado', ComoEhConhecido: 'Não Identificado' };
-            this.registerCustomerService(1, this.licenciada.LicenciadaId, this.numeroChamador, this.numeroChamado);
-          } else {
-            dadosBusca = {
-              CNPJ: environment.cnpjCentral,
-              UrlRoot: this.licenciada.UrlRoot,
-              EndPoint: this.licenciada.EndPoint,
-              numeroChamador: this.numeroChamador
-            };
+          ///  http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com/callcenter
+          this.services.buscaClienteChamadorNaLicenciada(dadosBusca)
+            .subscribe(r => {
+              console.log('buscaClienteChamadorNaLicenciada 2', r);
 
-            this.services.verificaSeClienteCadastradoNaCentral(dadosBusca).subscribe(clienteCentral => {
-              console.log('clienteCentral', clienteCentral);
-
-              if (clienteCentral.registro === undefined && this.clienteChamador !== undefined) {
-
-                this.services.postCadastraClienteNaCentral(this.clienteChamador).subscribe(r => {
-                  console.log('postCadastraClienteNaCentral', r);
-                  if (r.registro !== undefined) {
-                    this.callCLiente = r.registro;
-                    this.registerCustomerService(this.callCLiente.pk_sacado, this.licenciada.LicenciadaId, this.numeroChamador, this.numeroChamado);
-                  }
-
-                }, erro => console.log(erro));
-              } else {
-                // clienteCentral.registro = this.clienteChamador;
+              this.clienteChamador = r.registro;
+              console.log('clienteChamador', this.clienteChamador);
+              if (this.clienteChamador === undefined) {
+                this.clienteChamador = { Id: 1, Nome: 'Não Identificado', ComoEhConhecido: 'Não Identificado' };
                 this.registerCustomerService(1, this.licenciada.LicenciadaId, this.numeroChamador, this.numeroChamado);
+              } else {
+                this.verificaClienteLocal();
               }
             }, erro => console.log(erro));
-          }
         }, erro => console.log(erro));
-      }, erro => console.log(erro));
     }
+  }
+  verificaClienteLocal() {
+    let dadosBusca = {
+      CNPJ: environment.cnpjCentral,
+      UrlRoot: this.licenciada.UrlRoot,
+      EndPoint: this.licenciada.EndPoint,
+      numeroChamador: this.numeroChamador
+    };
+
+    this.services.verificaSeClienteCadastradoNaCentral(dadosBusca).subscribe(clienteCentral => {
+      console.log('clienteCentral', clienteCentral);
+
+      if (clienteCentral.registro === undefined && this.clienteChamador !== undefined) {
+
+        this.services.postCadastraClienteNaCentral(this.clienteChamador).subscribe(r => {
+          console.log('postCadastraClienteNaCentral', r);
+          if (r.registro !== undefined) {
+            this.callCLiente = r.registro;
+            this.registerCustomerService(this.callCLiente.pk_sacado, this.licenciada.LicenciadaId, this.numeroChamador, this.numeroChamado);
+          }
+
+        }, erro => console.log(erro));
+      } else {
+        // clienteCentral.registro = this.clienteChamador;
+        this.registerCustomerService(1, this.licenciada.LicenciadaId, this.numeroChamador, this.numeroChamado);
+      }
+    }, erro => console.log(erro));
   }
   inicializacao() {
     this.services.httpGet('getlistcombo/AssuntoChamada')
@@ -242,36 +248,60 @@ export class ChamadosComponent implements OnInit {
       }
     }
     // protocolo de cancelamneto da gazeta do povo 2082212
-    this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
+    this.services.httpPost('triagem', capsula, this.licenciada.CNPJ)
       .subscribe(r => {
 
         this.linkId = r.registro.Atendimento.pk_atendimento;
         let cap = { registro: { AtendimentoId: r.registro.Atendimento.pk_atendimento } };
-        this.services.httpPut('customer-service-link/' + this.registro.Id, cap)
-          .subscribe(rr => {
-            this.services
-              .snackBar
-              .open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento, 'Atendimento', { duration: 60000 })
-              .afterDismissed()
-              .subscribe(s => {
-                var strWindowFeatures = "menubar=no,width=800, heigth=800, location=yes,resizable=yes,scrollbars=yes,status=yes";
-                this.token = _CodeBase64(this.services.userCPF + '.' +
-                  this.licenciada.CNPJ + '.' +
-                  r.registro.Atendimento.pk_atendimento +
-                  '.AbrirAtendimento' + '.' +
-                  this.services.userToken,
-                  this.services.userCPF,
-                  this.services.userLicenciadaCNPJ);
+        if (environment.atendimentoOn)
+          this.services.httpPut('customer-service-link/' + this.registro.Id, cap)
+            .subscribe(rr => {
+              this.services
+                .snackBar
+                .open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento, 'Atendimento', { duration: 60000 })
+                .afterDismissed()
+                .subscribe(s => {
+                  var strWindowFeatures = "menubar=no,width=800, heigth=800, location=yes,resizable=yes,scrollbars=yes,status=yes";
+                  this.token = _CodeBase64(this.services.userCPF + '.' +
+                    this.licenciada.CNPJ + '.' +
+                    r.registro.Atendimento.pk_atendimento +
+                    '.AbrirAtendimento' + '.' +
+                    this.services.userToken,
+                    this.services.userCPF,
+                    this.services.userLicenciadaCNPJ);
 
-                const myWindow = window.open("http://localhost:4200?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
-                // const myWindow = window.open("http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com/audita?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
-                // chrome.windows.create({"url": url, "incognito": true});
+                  const myWindow = window.open("http://localhost:4200?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
+                  // const myWindow = window.open("http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com/audita?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
+                  // chrome.windows.create({"url": url, "incognito": true});
 
-              }, erro => console.log(erro));
-          }, erro => { console.log(erro); });
+                }, erro => console.log(erro));
+            }, erro => { console.log(erro); });
       }, erro => console.log(erro));
   }
 
+  ClientChange() {
+    let dlg = this._dialog.open(BuscaClienteDialogComponent, {
+      data: {
+        licenciada: this.licenciada,
+        CNPJ: this.licenciada.CNPJ,
+        UrlRoot: this.licenciada.UrlRoot,
+        EndPoint: this.licenciada.EndPoint,
+        numeroChamador: this.numeroChamador,
+        userName: this.services.userName,
+        buscarPor: 'cliente'
+      },
+      width: '50%',
+      height: '50%',
+      disableClose: false
+    });
+    dlg.afterClosed().subscribe(r => {
+      console.log('afterClosed', this.clienteChamador, r);
+      this.clienteChamador = r;
+      this.verificaClienteLocal();
+      this.registro.ClienteId = this.clienteChamador.id;
+      this.formGroup.controls['ClienteId'].setValue(this.clienteChamador.id);
+    });
+  }
 
   solicitarRemocao() {
     let funcao = this.funcoes.find(x => x.Id === this.registro.SolicitanteFuncaoId);
@@ -293,25 +323,26 @@ export class ChamadosComponent implements OnInit {
       }
     }
 
-    this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
+    this.services.httpPost('triagem', capsula, this.licenciada.CNPJ)
       .subscribe(r => {
         _log('retorno solicita remoção', r);
 
         this.linkId = r.registro.Atendimento.pk_atendimento;
-        this.services.httpPut('customer-service-link/' + this.registro.Id, {
-          registro: {
-            AtendimentoId: r.registro.Atendimento.pk_atendimento
-          }
-        })
-          .subscribe(rr =>
-            this.services.snackBar.open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento,
-              'Remoção', {
-              duration: 60000
-            }).afterDismissed()
-              .subscribe(s => {
-                _log('afterDismissed');
-                document.close();
-              }));
+        if (environment.remocaoOn)
+          this.services.httpPut('customer-service-link/' + this.registro.Id, {
+            registro: {
+              AtendimentoId: r.registro.Atendimento.pk_atendimento
+            }
+          })
+            .subscribe(rr =>
+              this.services.snackBar.open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento,
+                'Remoção', {
+                duration: 60000
+              }).afterDismissed()
+                .subscribe(s => {
+                  _log('afterDismissed');
+                  document.close();
+                }));
 
       }, erro => console.log(erro));
   }
@@ -336,24 +367,25 @@ export class ChamadosComponent implements OnInit {
       }
     }
 
-    this.services.httpPost('triagem', capsula, this.services.getHeaders('cnpj', this.licenciada.CNPJ))
+    this.services.httpPost('triagem', capsula, this.licenciada.CNPJ)
       .subscribe(r => {
         _log('retorno solicita teleconsulta', r);
 
         this.linkId = r.registro.Atendimento.pk_atendimento;
-        this.services.httpPut('customer-service-link/' + this.registro.Id, {
-          registro: {
-            AtendimentoId: r.registro.Atendimento.pk_atendimento
-          }
-        })
-          .subscribe(rr =>
-            this.services.snackBar.open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento, 'Teleconsulta', {
-              duration: 60000
-            }).afterDismissed()
-              .subscribe(s => {
-                _log('afterDismissed');
-                document.close();
-              }));
+        if (environment.teleconsultaOn)
+          this.services.httpPut('customer-service-link/' + this.registro.Id, {
+            registro: {
+              AtendimentoId: r.registro.Atendimento.pk_atendimento
+            }
+          })
+            .subscribe(rr =>
+              this.services.snackBar.open('Chamado atualizado com o ID #' + r.registro.Atendimento.pk_atendimento, 'Teleconsulta', {
+                duration: 60000
+              }).afterDismissed()
+                .subscribe(s => {
+                  _log('afterDismissed');
+                  document.close();
+                }));
 
       }, erro => console.log(erro));
   }

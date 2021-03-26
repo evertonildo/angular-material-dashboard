@@ -81,38 +81,36 @@ export class ExternalService {
   public get userLogged(): boolean {
     return this.userId > 0;
   }
-  public httpGet(metodo: string): Observable<any> {
-    return this.httpClient.get(environment.url + metodo, { headers: this.getHeaders(), });
+  public httpGet(metodo: string, cnpj: string = ''): Observable<any> {
+    let headers = this.getHeaders();
+    if (cnpj !== '')
+      headers = this.getHeaders('cnpj', cnpj);
+
+    return this.httpClient.get(environment.url + metodo, { headers: headers });
   }
 
-  public httpPost(metodo: string, body: any, newHeaders: HttpHeaders = null): Observable<any> {
-    if (_isNullOrEmpty(body.UsuarioCPF)) {
-      body.UsuarioCPF = this.userCPF;
-    }
-    if (_isNullOrEmpty(body.LicenciadaCNPJ)) {
-      body.LicenciadaCNPJ = this.userLicenciadaCNPJ;
-    }
+  public httpPost(metodo: string, body: any, cnpj: string = ''): Observable<any> {
 
-    if (newHeaders === null)
-      newHeaders = this.getHeaders();
+    let headers = this.getHeaders();
+    if (cnpj !== '')
+      headers = this.getHeaders('cnpj', cnpj);
 
-    return this.httpClient.post(environment.url + metodo, JSON.stringify(body), { headers: newHeaders });
+    return this.httpClient.post(environment.url + metodo, JSON.stringify(body), { headers: headers });
   }
 
-  public httpPut(metodo: string, body: any): Observable<any> {
-    console.log('httpPut', environment.url + metodo, body);
-    if (_isNullOrEmpty(body.UsuarioCPF)) {
-      body.UsuarioCPF = this.userCPF;
-    }
-    if (_isNullOrEmpty(body.LicenciadaCNPJ)) {
-      body.LicenciadaCNPJ = this.userLicenciadaCNPJ;
-    }
+  public httpPut(metodo: string, body: any, cnpj: string = ''): Observable<any> {
+    let headers = this.getHeaders();
+    if (cnpj !== '')
+      headers = this.getHeaders('cnpj', cnpj);
 
-    return this.httpClient.put(environment.url + metodo, JSON.stringify(body), { headers: this.getHeaders(), });
+    return this.httpClient.put(environment.url + metodo, JSON.stringify(body), { headers: headers });
   }
 
-  public httpDelete(metodo: string): Observable<any> {
-    return this.httpClient.delete(environment.url + metodo, { headers: this.getHeaders(), });
+  public httpDelete(metodo: string, cnpj: string = ''): Observable<any> {
+    let headers = this.getHeaders();
+    if (cnpj !== '')
+      headers = this.getHeaders('cnpj', cnpj);
+    return this.httpClient.delete(environment.url + metodo, { headers: headers });
   }
 
   private getLocalStorage(chave: string): any {
@@ -149,7 +147,7 @@ export class ExternalService {
       else this.headers = this.headers.set("Environment", "D");
     }
 
-    if (!this.headers.get("cnpj") === null) {
+    if (this.headers.get("cnpj") === null) {
       this.headers = this.headers.append("cnpj", this.userLicenciadaCNPJ);
       //_log('cnpj incluido no header', this.userLicenciadaCNPJ, this.headers);
     } else if (this.userLicenciadaCNPJ !== this.headers.get('cnpj')) {
@@ -158,7 +156,7 @@ export class ExternalService {
     }
     //_log('headers', this.headers);
 
-    if (!this.headers.get("cpf") === null) {
+    if (this.headers.get("cpf") === null) {
       this.headers = this.headers.append("cpf", this.userCPF);
       //_log('cpf incluido no header', this.userCPF, this.headers);
     } else if (this.userCPF !== this.headers.get("cpf")) {
@@ -174,11 +172,11 @@ export class ExternalService {
 
       if (!this.headers.has(chave)) {
         this.headers = this.headers.set(chave, valor);
-        //_log('add header ', chave, valor);
+        _log('add header ', chave, valor);
       }
       else if (this.headers.get(chave) !== valor) {
         this.headers = this.headers.set(chave, valor);
-        //_log('update header ', chave, valor);
+        _log('update header ', chave, valor, this.headers);
       }
     };
 
@@ -215,7 +213,13 @@ export class ExternalService {
    * @param numeroChamador Número do cliente que ligou
    * @returns 
    */
-  public buscaClienteChamadorNaLicenciada(body: { CNPJ: string, UrlRoot: string, EndPoint: string, numeroChamador: string }): Observable<any> {
+  public buscaClienteChamadorNaLicenciada(
+    body: {
+      CNPJ: string,
+      UrlRoot: string,
+      EndPoint: string,
+      numeroChamador: string
+    }): Observable<any> {
     console.log('buscaClienteChamadorNaLicenciada', body.CNPJ, body.UrlRoot, body.numeroChamador, body.EndPoint + body.numeroChamador);
     return this.httpClient.get(body.UrlRoot + body.EndPoint + body.numeroChamador, { headers: this.getHeaders("cnpj", body.CNPJ) });
   }
@@ -226,7 +230,7 @@ export class ExternalService {
    * @returns O registro de endpoint cadastrado
    */
   public endpointByPhone(numeroChamado: string): Observable<any> {
-    console.log('buscaEndpoint', numeroChamado, 'endpointbyphone/' + numeroChamado);
+    console.log('buscaEndpoint 1', numeroChamado, 'endpointbyphone/' + numeroChamado);
     return this.httpGet('endpointbyphone/' + numeroChamado);
   }
 

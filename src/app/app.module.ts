@@ -1,22 +1,21 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { LOCALE_ID, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DefaultModule } from './layouts/default/default.module';
 import { AssuntosComponent } from './pages/assuntos/assuntos.component';
-import { ChamadosComponent } from './pages/chamados/chamados.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MAT_DATE_LOCALE, MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatExpansionModule, MatCheckboxModule, MatIconModule, MatSnackBarModule } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatExpansionModule, MatCheckboxModule, MatIconModule, MatSnackBarModule } from '@angular/material';
 import { ExternalService } from './shared/services/external.service';
 import { HttpClientModule } from '@angular/common/http';
 import { EndpointsModule } from './pages/endpoints/endpoints.module';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { OraculoDirectivesModule } from './shared/directives/oraculo-directives';
@@ -25,24 +24,32 @@ import { MaterialModulos } from './material-modulos.module';
 import { TicketsComponent } from './pages/tickets/tickets.component';
 import { DlgMensagemModule } from './shared/components/dlg-mensagem/dlg-mensagem.module';
 import { AccessComponent } from './shared/components/dialog/access.component';
+import { BuscaClienteDialogComponent } from './shared/components/busca-cliente-dialog/busca-cliente-dialog.component';
+import { ChamadosComponent } from './pages/chamados/chamados.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AssuntosComponent,
-    ChamadosComponent,
     TicketsComponent,
-    AccessComponent
+    AccessComponent,
+    BuscaClienteDialogComponent,
+    ChamadosComponent
   ],
   imports: [
     CommonModule,
     BrowserModule,
+    FormsModule,
     FlexLayoutModule,
     ReactiveFormsModule,
     HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     DefaultModule,
+    EndpointsModule,
+    OraculoDirectivesModule,
+    MyPipesModule,
+    MaterialModulos,
     MatFormFieldModule,
     MatSelectModule,
     MatSnackBarModule,
@@ -52,15 +59,11 @@ import { AccessComponent } from './shared/components/dialog/access.component';
     MatDialogModule,
     MatExpansionModule,
     MatCheckboxModule,
-    EndpointsModule,
-    OraculoDirectivesModule,
-    MyPipesModule,
-    MaterialModulos,
     MatIconModule,
-    DlgMensagemModule
+    DlgMensagemModule,
   ],
-  exports: [OraculoDirectivesModule, MyPipesModule, MaterialModulos],
-  entryComponents: [AccessComponent],
+  exports: [OraculoDirectivesModule, MyPipesModule, BuscaClienteDialogComponent],
+  entryComponents: [AccessComponent, BuscaClienteDialogComponent],
   providers: [
     ExternalService,
     // { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
