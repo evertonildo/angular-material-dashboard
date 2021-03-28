@@ -6,7 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { Chamado } from 'src/app/shared/classes/chamado';
 import { BuscaClienteDialogComponent } from 'src/app/shared/components/busca-cliente-dialog/busca-cliente-dialog.component';
-import { _CodeBase64, _log } from 'src/app/shared/services/constantes';
+import { loggar, _CodeBase64, _log } from 'src/app/shared/services/constantes';
 import { ExternalService } from 'src/app/shared/services/external.service';
 import { environment } from 'src/environments/environment';
 
@@ -46,12 +46,15 @@ export class ChamadosComponent implements OnInit {
   phoneToList: any;
   token: string;
 
+  detalhes: string;
+
   constructor(
     public services: ExternalService,
     private route: ActivatedRoute,
     private _dialog: MatDialog,
     private _fb: FormBuilder) {
     document.title = 'Chamados - CCS';
+    this.detalhes = '';
     this.contratos = [];
 
     this.habilitarSolicitacaoAtendimento = false;
@@ -108,6 +111,7 @@ export class ChamadosComponent implements OnInit {
 
       this.numeroChamado = this.route.snapshot.params.id.split('.')[0];
       this.numeroChamador = this.route.snapshot.params.id.split('.')[1];
+      this.listarOrigem(this.numeroChamador);
       this.services.endpointByPhone(this.numeroChamado)
         .subscribe(r => {
           this.licenciada = r.registro;
@@ -200,6 +204,24 @@ export class ChamadosComponent implements OnInit {
         this.dataSource = new MatTableDataSource(this.registros);
         this.dataSource.paginator = this.paginator;
       }, erro => console.log(erro));
+  }
+  listarOrigem(phoneNumber: string) {
+    this.services.httpGet('customer-services-origem/' + phoneNumber)
+      .subscribe(r => {
+        console.log('listarOrigem', r);
+        this.registros = r.lista;
+        this.dataSource = new MatTableDataSource(this.registros);
+        this.dataSource.paginator = this.paginator;
+      }, erro => console.log(erro));
+  }
+
+  getDetails(cnpj: string, id: number, element: any): void {
+    if (id !== null && id !== undefined && cnpj !== null && cnpj !== undefined)
+      this.services.httpGet('busca-atendimento/' + id, cnpj)
+        .subscribe(r => {
+          element.detalhes = r.registro.agendamento;
+          if (loggar) console.log('getDetails', element.detalhes);
+        }, erro => console.log(erro));
   }
 
   registerCustomerService(clienteId: any, licenciadaId: any, numeroChamador: any, numeroChamado: any) {
