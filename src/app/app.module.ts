@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatExpansionModule, MatCheckboxModule, MatIconModule, MatSnackBarModule } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatExpansionModule, MatCheckboxModule, MatIconModule, MatSnackBarModule, MatProgressBarModule } from '@angular/material';
 import { ExternalService } from './shared/services/external.service';
 import { HttpClientModule } from '@angular/common/http';
 import { EndpointsModule } from './pages/endpoints/endpoints.module';
@@ -61,6 +61,7 @@ import { ChamadosComponent } from './pages/chamados/chamados.component';
     MatCheckboxModule,
     MatIconModule,
     DlgMensagemModule,
+    MatProgressBarModule
   ],
   exports: [OraculoDirectivesModule, MyPipesModule, BuscaClienteDialogComponent],
   entryComponents: [AccessComponent, BuscaClienteDialogComponent],

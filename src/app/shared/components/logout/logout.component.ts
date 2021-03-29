@@ -21,12 +21,16 @@ export class LogoutComponent implements OnInit {
 
   onClick() {
     this.services.clearUserData();
-    const dialogRef = this.dialog.open(AccessComponent, {
+
+    const _dialogRef = this.dialog.open(AccessComponent, {
       data: {},
       width: '40%',
       disableClose: true,
     });
-    //this.dialogRef.close();
+    _dialogRef.afterClosed().subscribe(r => {
+      this.dialogRef.close();
+      console.log('r', r);
+    });
   }
 
   onNoClick() {
