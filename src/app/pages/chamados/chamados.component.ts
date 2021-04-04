@@ -308,7 +308,7 @@ export class ChamadosComponent implements OnInit {
                     this.services.userCPF,
                     this.services.userLicenciadaCNPJ);
 
-                  const myWindow = window.open("http://localhost:4200?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
+                  const myWindow = window.open("http://127.0.0.1:4200?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
                   // const myWindow = window.open("http://ec2-54-232-5-124.sa-east-1.compute.amazonaws.com/audita?token=" + this.token, this.licenciada.CNPJ, strWindowFeatures);
                   // chrome.windows.create({"url": url, "incognito": true});
                 }

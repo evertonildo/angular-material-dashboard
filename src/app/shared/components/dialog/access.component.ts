@@ -37,16 +37,16 @@ export class AccessComponent implements OnInit {
 
   onNoClick(): void { }
   onClick(form: any): void {
-    _log('onClick', form);
+    console.log('onClick', form);
     const login = {
       Login: form.user,
       Senha: CriptografarMD5(form.password),
       CNPJ: '',
     };
     this.service.userToken = CriptografarMD5(form.password);
-    _log('login', login);
+    console.log('login', login);
     this.service.login(login).subscribe((result) => {
-      _log('login', result);
+      console.log('retorno login', result);
       this.service.userId = result.id;
       this.service.userName = result.registro.nome;
       this.service.userNick = result.registro.comoEhConhecido;

@@ -1,6 +1,6 @@
 import { Md5 } from "ts-md5";
 
-export const loggar = window.location.hostname.indexOf("localhost") >= 0;
+export const loggar = (window.location.hostname.indexOf("127.0.0.1") >= 0 || window.location.hostname.indexOf("localhost") >= 0);
 
 export const appVersion = "2021.01.282158";
 

@@ -43,7 +43,7 @@ export class ExternalService {
     if (value === null) this.removeStorage('_token'); else this.setLocalStorage("_token", value);
   }
 
-  public get userCPF(): string { return this.getLocalStorage('_userCPF'); }
+  public get userCPF(): string { return this.getLocalStorage('_userCPF') || '00000000000'; }
   public set userCPF(value: string) {
     if (value === null) this.removeStorage('_userCPF'); else this.setLocalStorage("_userCPF", value);
   }
@@ -74,9 +74,9 @@ export class ExternalService {
   }
 
   public login(login: { Login: any; Senha: any; CNPJ: string; }): Observable<any> {
-    _log('login', environment.url + 'login');
+    console.log('login', environment.url + 'login');
     const capsula = { registro: login, metodo: 'login' };
-    return this.httpClient.post(environment.url + 'login', JSON.stringify(capsula), { headers: this.headers });
+    return this.httpClient.post(environment.url + 'login', JSON.stringify(capsula), { headers: this.getHeaders() });
   }
   public get userLogged(): boolean {
     return this.userId > 0;
