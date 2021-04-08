@@ -48,6 +48,7 @@ export class ChamadosComponent implements OnInit {
 
   detalhes: string;
   LicenciadaCNPJ: any;
+  endpointAbrirAtendimento: any;
   //progress: boolean;
 
   constructor(
@@ -132,6 +133,7 @@ export class ChamadosComponent implements OnInit {
           this.services.httpGet('endpointList/' + this.numeroChamado)
             .subscribe(r => {
               this.endpoints = r.lista;
+              this.endpointAbrirAtendimento = this.endpoints.find(end => end.Servico === 'Abrir Atendimento');
               this.habilitarSolicitacaoAtendimento = (this.endpoints.find(end => end.Servico === 'Abrir Atendimento') !== undefined);
               this.habilitarSolicitacaoRemocao = (this.endpoints.find(end => end.Servico === 'Abrir Remocao') !== undefined);
               this.habilitarSolicitacaoTeleconsulta = (this.endpoints.find(end => end.Servico === 'Abrir Teleconsulta') !== undefined);
@@ -183,20 +185,11 @@ export class ChamadosComponent implements OnInit {
     }, erro => console.log(erro));
   }
   inicializacao() {
-    this.services.httpGet('getlistcombo/AssuntoChamada')
-      .subscribe(r => {
-        this.assuntos = r;
-      }, erro => console.log(erro));
+    this.services.httpGet('getlistcombo/AssuntoChamada').subscribe(r => { this.assuntos = r; }, erro => console.log(erro));
 
-    this.services.httpGet('callednumbers')
-      .subscribe(r => {
-        this.calledPhones = r.lista;
-      }, erro => console.log(erro));
-    this.services.httpGet('getlistcombo/FuncaoSolicitante')
-      .subscribe(r => {
-        this.funcoes = r;
-        _log('funcoes', this.funcoes);
-      }, erro => console.log(erro));
+    this.services.httpGet('callednumbers').subscribe(r => { this.calledPhones = r.lista; }, erro => console.log(erro));
+
+    this.services.httpGet('getlistcombo/FuncaoSolicitante').subscribe(r => { this.funcoes = r; _log('funcoes', this.funcoes); }, erro => console.log(erro));
 
   }
 
@@ -284,7 +277,7 @@ export class ChamadosComponent implements OnInit {
       }
     }
     // protocolo de cancelamneto da gazeta do povo 2082212
-    this.services.httpPost('triagem', capsula, this.LicenciadaCNPJ)
+    this.services.httpPost('triagem', capsula, this.LicenciadaCNPJ, this.endpointAbrirAtendimento.Ambiente)
       .subscribe(r => {
         if (loggar) console.log('r', r);
         this.linkId = r.registro.Atendimento.pk_atendimento;

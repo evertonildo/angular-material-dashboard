@@ -89,27 +89,37 @@ export class ExternalService {
     return this.httpClient.get(environment.url + metodo, { headers: headers });
   }
 
-  public httpPost(metodo: string, body: any, cnpj: string = ''): Observable<any> {
+  public httpPost(metodo: string, body: any, cnpj: string = '', ambiente: string = ''): Observable<any> {
 
     let headers = this.getHeaders();
     if (cnpj !== '')
       headers = this.getHeaders('cnpj', cnpj);
+    if (ambiente !== '')
+      headers = this.getHeaders('Environment', ambiente);
+    console.log('headers', headers);
 
     return this.httpClient.post(environment.url + metodo, JSON.stringify(body), { headers: headers });
   }
 
-  public httpPut(metodo: string, body: any, cnpj: string = ''): Observable<any> {
+  public httpPut(metodo: string, body: any, cnpj: string = '', ambiente: string = ''): Observable<any> {
     let headers = this.getHeaders();
     if (cnpj !== '')
       headers = this.getHeaders('cnpj', cnpj);
+    if (ambiente !== '')
+      headers = this.getHeaders('Environment', ambiente);
+    console.log('headers', headers);
 
     return this.httpClient.put(environment.url + metodo, JSON.stringify(body), { headers: headers });
   }
 
-  public httpDelete(metodo: string, cnpj: string = ''): Observable<any> {
+  public httpDelete(metodo: string, cnpj: string = '', ambiente: string = ''): Observable<any> {
     let headers = this.getHeaders();
     if (cnpj !== '')
       headers = this.getHeaders('cnpj', cnpj);
+    if (ambiente !== '')
+      headers = this.getHeaders('Environment', ambiente);
+    console.log('headers', headers);
+
     return this.httpClient.delete(environment.url + metodo, { headers: headers });
   }
 
